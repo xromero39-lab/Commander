@@ -1,342 +1,386 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <!-- COMMAND_FORGE_TABBED_DECK_V2 -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>CommandForge.exe</title>
   <style>
     :root{
-      --gray:#c0c0c0;--light:#fff;--dark:#808080;--black:#000;--blue:#000080;
-      --desktop:#008080;--panel:#e8e8e8;--font:"MS Sans Serif",Tahoma,Arial,sans-serif;
-      --library-min:310px;--deck-min:330px;--card-w:126px;--gap:9px;
-      --hover-scale:1.48;--hover-ms:180ms;--commander-opacity:.16;
+      --gray:#c0c0c0; --light:#fff; --dark:#808080; --ink:#000;
+      --blue:#000080; --desktop:#008080; --font:"MS Sans Serif",Tahoma,Arial,sans-serif;
+      --library-card:112px; --deck-card:132px; --gap:8px;
+      --preview-scale:1.45; --commander-opacity:.14;
     }
     *{box-sizing:border-box}
-    body{margin:0;min-width:900px;background:var(--desktop);font:13px var(--font);color:#000}
+    body{margin:0;min-width:860px;background:var(--desktop);color:var(--ink);font:13px var(--font)}
     button,input,select,textarea{font:13px var(--font)}
-    button{min-height:26px;padding:4px 9px;background:var(--gray);color:#000;cursor:pointer;border-top:2px solid var(--light);border-left:2px solid var(--light);border-right:2px solid #404040;border-bottom:2px solid #404040}
-    button:active,button.active{border-top-color:#404040;border-left-color:#404040;border-right-color:#fff;border-bottom-color:#fff;transform:translate(1px,1px)}
-    input,select,textarea{padding:4px;background:#fff;color:#000;border-top:2px solid #404040;border-left:2px solid #404040;border-right:2px solid #fff;border-bottom:2px solid #fff}
-    textarea{resize:vertical}
-    .desktop{padding:26px;min-height:100vh}
-    .app{max-width:1600px;min-height:calc(100vh - 52px);margin:auto;background:var(--gray);border-top:3px solid #fff;border-left:3px solid #fff;border-right:3px solid #404040;border-bottom:3px solid #404040;box-shadow:8px 8px 0 #004747}
-    .titlebar{height:33px;padding:4px 5px 4px 8px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#000080,#1084d0);color:#fff;font-size:14px;font-weight:bold}
-    .title-left,.window-buttons,.menubar,.tool-row,.tabs,.tab-tools,.view-controls{display:flex;align-items:center}
-    .title-left{gap:7px}.window-buttons{gap:3px}.app-icon{width:18px;height:18px;display:grid;place-items:center;background:#ffff00;color:#000;border:1px solid #fff;font-size:12px}
-    .window-button{width:24px;min-height:22px;padding:0;font-size:14px;font-weight:bold}
-    .menubar{gap:3px;padding:3px 6px;border-bottom:1px solid var(--dark)}
-    .menu-button{min-height:23px;padding:2px 8px;border:0;background:transparent;box-shadow:none}.menu-button:hover{background:var(--blue);color:#fff}
-    .toolbar{display:grid;grid-template-columns:minmax(280px,1fr) auto auto auto;gap:8px;align-items:center;padding:8px;border-bottom:2px solid #808080}
-    .search-wrap{display:flex;gap:6px;min-width:0}.search-wrap input{flex:1;min-width:180px}.toolbar label{font-weight:bold;white-space:nowrap}
-    .view-controls{gap:3px;white-space:nowrap}.view-controls span{font-weight:bold}.size-button{width:28px;min-height:26px;padding:0;font-size:17px;font-weight:bold}
-    .status-strip{display:flex;align-items:center;gap:10px;min-height:31px;padding:4px 7px;border-top:2px solid #fff;border-bottom:2px solid #808080}.field-label{font-weight:bold}.deck-name{flex:1;min-width:160px}
-    .workbench{display:flex;min-height:690px;padding:8px;gap:0}
-    .library-panel,.deck-panel{min-width:0;display:flex;flex-direction:column;background:var(--gray);border-top:2px solid #808080;border-left:2px solid #808080;border-right:2px solid #fff;border-bottom:2px solid #fff}
-    .library-panel{width:48%;min-width:var(--library-min)}.deck-panel{flex:1;min-width:var(--deck-min)}
-    .panel-title{padding:4px 6px;background:#000080;color:#fff;font-size:12px;font-weight:bold;letter-spacing:.2px}
-    .panel-tools,.tab-tools{display:flex;flex-wrap:wrap;gap:5px;padding:6px;border-bottom:1px solid #808080}.panel-tools button,.tab-tools button{min-height:23px;padding:2px 7px;font-size:12px}
-    .splitter{position:relative;z-index:4;width:12px;flex:0 0 12px;cursor:col-resize;background:var(--gray);border-left:2px solid #fff;border-right:2px solid #808080}
-    .splitter:hover,.splitter.dragging{background:#000080}.splitter::after{content:"⋮";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#555;font-size:22px;font-weight:bold}.splitter:hover::after,.splitter.dragging::after{color:#fff}
-    .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--card-w),1fr));gap:var(--gap);align-content:start;flex:1;min-height:0;padding:8px;overflow:auto;background:var(--panel);transition:grid-template-columns 180ms ease,gap 180ms ease}
-    .magic-card{position:relative;min-width:0;min-height:205px;padding:4px;overflow:visible;background:#f7f7f7;border-top:2px solid #fff;border-left:2px solid #fff;border-right:2px solid #404040;border-bottom:2px solid #404040;cursor:grab;user-select:none;transition:transform var(--hover-ms) ease,box-shadow var(--hover-ms) ease}
-    .magic-card:active{cursor:grabbing}.magic-card.hovered{z-index:9;transform:scale(var(--hover-scale));box-shadow:6px 7px 0 #555}
-    .magic-card img{display:block;width:100%;height:154px;object-fit:cover;background:#222;border:1px solid #000}.magic-name{margin-top:3px;overflow:hidden;font-size:11px;font-weight:bold;text-overflow:ellipsis;white-space:nowrap}.magic-type{min-height:22px;overflow:hidden;font-size:9px;line-height:11px}.add-mini{width:100%;min-height:19px;margin-top:2px;padding:1px 3px;font-size:10px}
-    .zone-message{padding:18px 10px;color:#555;font-style:italic;text-align:center}
-    .tabs{gap:2px;padding:5px 5px 0;background:var(--gray);border-bottom:2px solid #808080}.tab{position:relative;top:2px;min-height:27px;padding:4px 12px;border-bottom:0}.tab.active{z-index:2;background:#fff;border-bottom:2px solid #fff}
-    .tabs-spacer{flex:1}.view-toggle{min-height:23px;padding:2px 7px;font-size:11px}.mode-readout{padding:2px 5px;font-size:10px;color:#333}
-    .tab-content{display:none;position:relative;flex:1;min-height:0;overflow:hidden;background:#fff}.tab-content.active{display:flex;flex-direction:column}
-    .zone-background{position:absolute;inset:0;z-index:0;pointer-events:none;background-size:cover;background-position:center;background-repeat:no-repeat;opacity:var(--commander-opacity);filter:blur(1.5px) saturate(.8)}
-    .zone-background::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,#fff8,#e8e8e899)}
-    .deck-area{position:relative;z-index:1;flex:1;min-height:0;padding:8px;overflow:auto}.deck-area.over{outline:3px dashed #000080;outline-offset:-7px;background:#e2efffcc}
-    .deck-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--card-w),1fr));gap:var(--gap);align-content:start;transition:grid-template-columns 180ms ease}
-    .deck-tile{position:relative;min-height:202px;padding:4px;background:#f7f7f7;border-top:2px solid #fff;border-left:2px solid #fff;border-right:2px solid #404040;border-bottom:2px solid #404040;cursor:grab;transition:transform var(--hover-ms) ease,box-shadow var(--hover-ms) ease}.deck-tile.hovered{z-index:8;transform:scale(var(--hover-scale));box-shadow:6px 7px 0 #555}.deck-tile img{width:100%;height:152px;display:block;object-fit:cover;border:1px solid #000;background:#222}.tile-count{position:absolute;top:7px;left:7px;padding:2px 4px;color:#fff;background:#000080;border:1px solid #fff;font-weight:bold}.tile-name{margin-top:3px;overflow:hidden;font-size:11px;font-weight:bold;text-overflow:ellipsis;white-space:nowrap}.tile-controls{display:flex;gap:3px;margin-top:3px}.tile-controls button{flex:1;min-height:20px;padding:0;font-size:11px}
-    .deck-list{display:flex;flex-direction:column;gap:4px}.deck-row{position:relative;display:grid;grid-template-columns:42px 38px 1fr 27px 28px;gap:6px;align-items:center;min-height:52px;padding:4px;background:#f7f7f7;border:1px solid #999;cursor:grab}.deck-row:hover{background:#e2efff}.deck-row img{width:36px;height:45px;object-fit:cover;border:1px solid #000;background:#222}.deck-count{padding:3px 2px;background:#fff;border:1px solid #555;text-align:center;font-weight:bold}.deck-card-name{overflow:hidden;font-weight:bold;text-overflow:ellipsis;white-space:nowrap}.deck-card-meta{overflow:hidden;color:#444;font-size:10px;text-overflow:ellipsis;white-space:nowrap}.tiny-button{min-height:24px;padding:0;font-weight:bold}
-    .zone-footer{position:relative;z-index:2;display:flex;justify-content:space-between;gap:6px;padding:6px;font-weight:bold;background:var(--gray);border-top:2px solid #808080}
-    .preview{position:fixed;z-index:100;display:none;width:280px;padding:5px;background:var(--gray);border-top:3px solid #fff;border-left:3px solid #fff;border-right:3px solid #404040;border-bottom:3px solid #404040;box-shadow:8px 8px 0 #333;pointer-events:none;opacity:0;transform:scale(.94);transition:opacity 130ms ease,transform 130ms ease}.preview.show{display:block;opacity:1;transform:scale(1)}.preview img{display:block;width:100%;height:auto;border:1px solid #000}.preview-name{padding:4px 1px 0;font-weight:bold;text-align:center}
-    .bottom-status{display:grid;grid-template-columns:1fr auto;gap:10px;padding:5px 7px;border-top:2px solid #808080}.status-box{min-height:23px;padding:3px 5px;background:var(--gray);border-top:1px solid #808080;border-left:1px solid #808080;border-right:1px solid #fff;border-bottom:1px solid #fff}
-    .modal-backdrop{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:20px;background:#0007}.modal{width:min(820px,96vw);max-height:90vh;overflow:auto;background:var(--gray);border-top:3px solid #fff;border-left:3px solid #fff;border-right:3px solid #404040;border-bottom:3px solid #404040}.modal-content{padding:14px}.hidden{display:none!important}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.notice{padding:7px;background:#ffffcc;border:1px solid #777;font-size:12px;line-height:1.35}
-    .settings-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}.settings-grid label{display:block;margin-bottom:4px;font-weight:bold}.settings-grid input,.settings-grid select{width:100%}.range-value{font-size:11px;font-weight:normal}
-    .token-form{display:grid;grid-template-columns:1fr 1fr 1fr 80px;gap:8px}.token-form label{display:block;margin-bottom:3px;font-size:11px;font-weight:bold}.token-form input,.token-form textarea{width:100%}.token-form .wide{grid-column:span 4}.token-gallery{display:flex;gap:9px;min-height:190px;padding:8px;overflow:auto;background:#e8e8e8;border-top:2px solid #808080}.token-card{position:relative;flex:0 0 145px;padding:4px;background:#f7f7f7;border-top:2px solid #fff;border-left:2px solid #fff;border-right:2px solid #404040;border-bottom:2px solid #404040;cursor:grab}.token-card img{width:100%;height:160px;display:block;object-fit:cover;border:1px solid #000;background:#222}.token-name{font-weight:bold;margin-top:4px}.token-detail{font-size:10px}.token-delete{position:absolute;right:7px;top:7px;width:22px;min-height:22px;padding:0;background:#ffdddd}
-    @media(max-width:1120px){body{min-width:760px}.toolbar{grid-template-columns:minmax(250px,1fr) auto auto}.view-controls{grid-column:1/-1}.desktop{padding:12px}.workbench{min-height:610px}.library-panel{min-width:270px}.deck-panel{min-width:300px}}
+    button{min-height:26px;padding:4px 9px;cursor:pointer;background:var(--gray);border-top:2px solid var(--light);border-left:2px solid var(--light);border-right:2px solid #404040;border-bottom:2px solid #404040}
+    button:active,button.active{transform:translate(1px,1px);border-top-color:#404040;border-left-color:#404040;border-right-color:#fff;border-bottom-color:#fff}
+    input,select,textarea{padding:4px;background:#fff;border-top:2px solid #404040;border-left:2px solid #404040;border-right:2px solid #fff;border-bottom:2px solid #fff}
+    .desktop{min-height:100vh;padding:24px}
+    .app{max-width:1600px;min-height:calc(100vh - 48px);margin:auto;background:var(--gray);border-top:3px solid #fff;border-left:3px solid #fff;border-right:3px solid #404040;border-bottom:3px solid #404040;box-shadow:8px 8px 0 #004848}
+    .titlebar{height:33px;padding:4px 6px 4px 8px;display:flex;align-items:center;justify-content:space-between;color:#fff;background:linear-gradient(90deg,#000080,#1084d0);font-size:14px;font-weight:bold}
+    .title-left,.menus,.toolbar,.search,.tabs,.tab-tools,.window-buttons,.token-form{display:flex;align-items:center}
+    .title-left{gap:7px}.app-icon{display:grid;width:18px;height:18px;place-items:center;color:#000;background:#ffff00;border:1px solid #fff}.window-buttons{gap:3px}.win-button{width:24px;min-height:22px;padding:0;font-weight:bold}
+    .menus{gap:3px;padding:3px 6px;border-bottom:1px solid var(--dark)}.menu{min-height:23px;padding:2px 8px;border:0;background:transparent;box-shadow:none}.menu:hover{color:#fff;background:var(--blue)}
+    .toolbar{gap:8px;padding:8px;border-bottom:2px solid var(--dark)}.search{flex:1;gap:6px}.search input{flex:1;min-width:180px}.toolbar label{font-weight:bold;white-space:nowrap}
+    .status{display:flex;gap:8px;align-items:center;padding:5px 7px;border-top:2px solid #fff;border-bottom:2px solid var(--dark)}.status input{flex:1;min-width:180px}.status b{white-space:nowrap}
+    .workspace{display:flex;min-height:680px;padding:8px}
+    .panel{display:flex;min-width:0;flex-direction:column;background:var(--gray);border-top:2px solid var(--dark);border-left:2px solid var(--dark);border-right:2px solid #fff;border-bottom:2px solid #fff}
+    #libraryPanel{width:48%;min-width:285px}.deck-panel{flex:1;min-width:315px}
+    .panel-title{padding:4px 6px;color:#fff;background:var(--blue);font-size:12px;font-weight:bold}.panel-tools,.tab-tools{display:flex;flex-wrap:wrap;gap:5px;padding:6px;border-bottom:1px solid var(--dark)}.panel-tools button,.tab-tools button{min-height:23px;padding:2px 7px;font-size:12px}
+    #splitter{position:relative;z-index:5;flex:0 0 12px;width:12px;cursor:col-resize;background:var(--gray);border-left:2px solid #fff;border-right:2px solid var(--dark)}
+    #splitter:hover,#splitter.dragging{background:var(--blue)}#splitter::after{content:"⋮";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#555;font-size:21px;font-weight:bold}#splitter:hover::after,#splitter.dragging::after{color:#fff}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--library-card),1fr));gap:var(--gap);align-content:start;flex:1;min-height:0;padding:8px;overflow:auto;background:#e8e8e8}
+    .card,.deck-card{position:relative;min-width:0;padding:4px;overflow:visible;cursor:grab;background:#f8f8f8;border-top:2px solid #fff;border-left:2px solid #fff;border-right:2px solid #404040;border-bottom:2px solid #404040;transition:transform .15s ease,box-shadow .15s ease}
+    .card{min-height:184px}.card img,.deck-card img{display:block;width:100%;object-fit:cover;background:#222;border:1px solid #000}.card img{height:134px}.card-name,.deck-name{overflow:hidden;margin-top:3px;font-size:11px;font-weight:bold;text-overflow:ellipsis;white-space:nowrap}.card-type{min-height:22px;overflow:hidden;font-size:9px;line-height:11px}.mini-add{width:100%;min-height:20px;margin-top:2px;padding:1px 3px;font-size:10px}
+    .hover-grow:hover{z-index:8;transform:scale(var(--preview-scale));box-shadow:6px 7px 0 #555}.empty{padding:18px 10px;color:#555;font-style:italic;text-align:center}
+    .tabs{gap:2px;padding:5px 5px 0;border-bottom:2px solid var(--dark)}.tab{position:relative;top:2px;min-height:27px;padding:4px 11px;border-bottom:0}.tab.active{z-index:2;background:#fff;border-bottom:2px solid #fff}.tab-spacer{flex:1}.view{min-height:23px;padding:2px 7px;font-size:11px}
+    .tab-page{position:relative;display:none;flex:1;min-height:0;overflow:hidden;background:#fff}.tab-page.active{display:flex;flex-direction:column}.commander-art{position:absolute;inset:0;z-index:0;pointer-events:none;background-position:center;background-repeat:no-repeat;background-size:cover;opacity:var(--commander-opacity);filter:blur(2px) saturate(.75)}.commander-art:after{content:"";position:absolute;inset:0;background:#ffffffaa}
+    .zone{position:relative;z-index:1;flex:1;min-height:0;padding:8px;overflow:auto}.zone.over{outline:3px dashed var(--blue);outline-offset:-7px;background:#e2efffcc}.zone-footer{position:relative;z-index:2;display:flex;justify-content:space-between;gap:8px;padding:6px;background:var(--gray);border-top:2px solid var(--dark);font-weight:bold}
+    .deck-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--deck-card),1fr));gap:var(--gap);align-content:start}.deck-card{min-height:202px}.deck-card img{height:154px}.qty{position:absolute;top:7px;left:7px;padding:2px 4px;color:#fff;background:var(--blue);border:1px solid #fff;font-weight:bold}.controls{display:flex;gap:3px;margin-top:3px}.controls button{flex:1;min-height:20px;padding:0;font-size:11px}
+    .deck-list{display:flex;flex-direction:column;gap:4px}.deck-row{display:grid;grid-template-columns:38px 42px 1fr 28px 28px;gap:6px;align-items:center;min-height:54px;padding:4px;cursor:grab;background:#f8f8f8;border:1px solid #999}.deck-row:hover{background:#e2efff}.deck-row img{width:36px;height:46px;object-fit:cover;background:#222;border:1px solid #000}.count{padding:3px 2px;background:#fff;border:1px solid #555;text-align:center;font-weight:bold}.row-name{overflow:hidden;font-weight:bold;text-overflow:ellipsis;white-space:nowrap}.row-type{overflow:hidden;color:#444;font-size:10px;text-overflow:ellipsis;white-space:nowrap}.tiny{min-height:24px;padding:0;font-weight:bold}
+    #preview{position:fixed;z-index:100;display:none;width:280px;padding:5px;pointer-events:none;opacity:0;background:var(--gray);border-top:3px solid #fff;border-left:3px solid #fff;border-right:3px solid #404040;border-bottom:3px solid #404040;box-shadow:8px 8px 0 #333;transform:scale(.94);transition:opacity .13s ease,transform .13s ease}#preview.show{opacity:1;transform:scale(1)}#preview img{display:block;width:100%;border:1px solid #000}#preview div{padding-top:4px;font-weight:bold;text-align:center}
+    .bottom{display:grid;grid-template-columns:1fr auto;gap:10px;padding:5px 7px;border-top:2px solid var(--dark)}.statusbox{min-height:23px;padding:3px 5px;border-top:1px solid var(--dark);border-left:1px solid var(--dark);border-right:1px solid #fff;border-bottom:1px solid #fff}
+    .modal-wrap{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:20px;background:#0007}.modal{width:min(800px,96vw);max-height:90vh;overflow:auto;background:var(--gray);border-top:3px solid #fff;border-left:3px solid #fff;border-right:3px solid #404040;border-bottom:3px solid #404040}.modal-body{padding:14px}.hidden{display:none!important}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.form-grid label,.token-form label{display:block;margin-bottom:4px;font-weight:bold}.form-grid input,.form-grid select{width:100%}.range-value{font-size:11px;font-weight:normal}
+    .token-form{display:grid;grid-template-columns:1fr 1fr 1fr 80px;gap:8px;align-items:end}.token-form input,.token-form textarea{width:100%}.wide{grid-column:span 4}.token-gallery{display:flex;gap:9px;min-height:190px;padding:8px;overflow:auto;background:#e8e8e8;border-top:2px solid var(--dark)}.token{position:relative;flex:0 0 145px;padding:4px;cursor:grab;background:#f8f8f8;border-top:2px solid #fff;border-left:2px solid #fff;border-right:2px solid #404040;border-bottom:2px solid #404040}.token img{display:block;width:100%;height:160px;object-fit:cover;border:1px solid #000}.token strong{display:block;margin-top:4px}.token small{display:block;font-size:10px}.delete-token{position:absolute;right:7px;top:7px;width:22px;min-height:22px;padding:0;background:#ffdddd}
+    @media(max-width:1100px){body{min-width:760px}.desktop{padding:12px}.toolbar{flex-wrap:wrap}.workspace{min-height:600px}#libraryPanel{min-width:260px}.deck-panel{min-width:290px}}
   </style>
 </head>
 <body>
   <div class="desktop">
     <main class="app">
       <header class="titlebar">
-        <div class="title-left"><div class="app-icon">⚒</div><span>CommandForge.exe — Magic Deck Workshop</span></div>
-        <div class="window-buttons"><button class="window-button">_</button><button class="window-button">□</button><button class="window-button">×</button></div>
+        <div class="title-left"><span class="app-icon">⚒</span><span>CommandForge.exe — Magic Deck Workshop</span></div>
+        <div class="window-buttons"><button class="win-button">_</button><button class="win-button">□</button><button class="win-button">×</button></div>
       </header>
 
-      <nav class="menubar">
-        <button class="menu-button" id="newDeckBtn">New Deck</button>
-        <button class="menu-button" id="settingsBtn">Settings</button>
-        <button class="menu-button" id="tokensBtn">Tokens</button>
-        <button class="menu-button" id="saveBtn">Save</button>
-        <button class="menu-button" id="clearBtn">Clear Deck</button>
-        <button class="menu-button" id="helpBtn">Help</button>
+      <nav class="menus">
+        <button class="menu" id="newBtn">New Deck</button>
+        <button class="menu" id="settingsBtn">Settings</button>
+        <button class="menu" id="tokensBtn">Tokens</button>
+        <button class="menu" id="saveBtn">Save</button>
+        <button class="menu" id="clearBtn">Clear</button>
+        <button class="menu" id="helpBtn">Help</button>
       </nav>
 
       <section class="toolbar">
-        <div class="search-wrap"><input id="searchInput" placeholder="Search cards — e.g. Sol Ring, t:elf, o:draw" autocomplete="off"><button id="searchBtn">Search</button><button id="clearSearchBtn">Clear</button></div>
-        <label>Format <select id="formatSelect"><option>Commander</option><option>Standard</option><option>Modern</option><option>Pioneer</option><option>Legacy</option><option>Vintage</option><option>Pauper</option><option>Brawl</option><option>Oathbreaker</option><option>Custom</option></select></label>
-        <label>Side Zone <select id="sideMode"><option value="maybeboard">Maybeboard</option><option value="sideboard">Sideboard</option></select></label>
-        <div class="view-controls"><span>Library:</span><button class="size-button" id="sizeDownBtn">−</button><select id="cardSize"><option value="compact">Compact</option><option value="normal" selected>Normal</option><option value="large">Large</option></select><button class="size-button" id="sizeUpBtn">+</button></div>
+        <div class="search"><input id="searchInput" placeholder="Search cards — Sol Ring, t:elf, o:draw" autocomplete="off"><button id="searchBtn">Search</button><button id="searchClearBtn">Clear</button></div>
+        <label>Format <select id="format"><option>Commander</option><option>Standard</option><option>Modern</option><option>Pioneer</option><option>Legacy</option><option>Vintage</option><option>Pauper</option><option>Brawl</option><option>Oathbreaker</option><option>Custom</option></select></label>
+        <label>Side <select id="sideMode"><option value="maybeboard">Maybeboard</option><option value="sideboard">Sideboard</option></select></label>
+        <label>Library <select id="density"><option value="compact">Compact</option><option value="normal">Normal</option><option value="large">Large</option></select></label>
       </section>
 
-      <section class="status-strip"><span class="field-label">Deck Name:</span><input id="deckName" class="deck-name" value="Untitled Deck"><span id="commanderStatus">Commander: none selected</span></section>
+      <section class="status"><b>Deck Name:</b><input id="deckName" value="Untitled Deck"><span id="commanderLabel">Commander: none selected</span></section>
 
-      <section class="workbench" id="workbench">
-        <section class="library-panel" id="libraryPanel">
-          <div class="panel-title">CARD LIBRARY — <span id="libraryHint">search or choose a type</span></div>
+      <section class="workspace" id="workspace">
+        <section class="panel" id="libraryPanel">
+          <div class="panel-title">CARD LIBRARY — <span id="libraryInfo">search or choose a type</span></div>
           <div class="panel-tools">
-            <button data-query="t:creature">Creatures</button><button data-query="t:instant">Instants</button><button data-query="t:sorcery">Sorceries</button><button data-query="t:artifact">Artifacts</button><button data-query="t:enchantment">Enchantments</button><button data-query="t:land">Lands</button>
+            <button data-q="t:creature">Creatures</button><button data-q="t:instant">Instants</button><button data-q="t:sorcery">Sorceries</button><button data-q="t:artifact">Artifacts</button><button data-q="t:enchantment">Enchantments</button><button data-q="t:land">Lands</button>
           </div>
-          <div class="card-grid" id="libraryGrid"><div class="zone-message">Search for a Magic card to fill the library.</div></div>
+          <div class="card-grid" id="library"><div class="empty">Search for Magic cards to fill the library.</div></div>
         </section>
 
-        <div class="splitter" id="splitter" title="Drag to resize Library and Deck Workspace"></div>
+        <div id="splitter" title="Drag this border left or right"></div>
 
-        <section class="deck-panel" id="deckPanel">
+        <section class="panel deck-panel" id="deckPanel">
           <div class="tabs">
             <button class="tab active" data-tab="deck">Main Deck</button>
             <button class="tab" data-tab="maybe">Maybe</button>
             <button class="tab" data-tab="side">Sideboard</button>
-            <span class="tabs-spacer"></span>
-            <button class="view-toggle active" id="gridViewBtn">Grid</button>
-            <button class="view-toggle" id="listViewBtn">List</button>
+            <span class="tab-spacer"></span>
+            <button class="view active" id="gridBtn">Grid</button>
+            <button class="view" id="listBtn">List</button>
           </div>
-          <div class="tab-tools">
-            <button id="setCommanderBtn">Set selected as Commander</button><button id="sortBtn">Sort A–Z</button><span class="mode-readout" id="autoViewReadout"></span>
-          </div>
+          <div class="tab-tools"><button id="commanderBtn">Set selected as Commander</button><button id="sortBtn">Sort A–Z</button><span id="autoMode"></span></div>
 
-          <div class="tab-content active" id="tab-deck">
-            <div class="zone-background" id="commanderBackground"></div>
-            <div class="deck-area" id="deckZone"></div>
-            <div class="zone-footer"><span id="deckFooter">0 unique cards • 0 total cards</span><span id="deckTarget">0 / 100</span></div>
+          <div class="tab-page active" id="page-deck">
+            <div class="commander-art" id="commanderArt"></div>
+            <div class="zone" id="zone-deck"></div>
+            <div class="zone-footer"><span id="deckSummary"></span><span id="deckTarget"></span></div>
           </div>
-
-          <div class="tab-content" id="tab-maybe">
-            <div class="deck-area" id="maybeZone"></div>
-            <div class="zone-footer"><span id="maybeFooter">0 unique cards • 0 total cards</span><span>Unlimited brew space</span></div>
+          <div class="tab-page" id="page-maybe">
+            <div class="zone" id="zone-maybe"></div>
+            <div class="zone-footer"><span id="maybeSummary"></span><span>Unlimited brew space</span></div>
           </div>
-
-          <div class="tab-content" id="tab-side">
-            <div class="deck-area" id="sideZone"></div>
-            <div class="zone-footer"><span id="sideFooter">0 unique cards • 0 total cards</span><span id="sideRule">Sideboard mode</span></div>
+          <div class="tab-page" id="page-side">
+            <div class="zone" id="zone-side"></div>
+            <div class="zone-footer"><span id="sideSummary"></span><span id="sideText"></span></div>
           </div>
         </section>
       </section>
 
-      <footer class="bottom-status"><div class="status-box" id="status">Ready. Search Scryfall to begin.</div><div class="status-box" id="health">Deck: 0 | Maybe: 0 | Side: 0</div></footer>
+      <footer class="bottom"><div class="statusbox" id="message">Ready.</div><div class="statusbox" id="totals"></div></footer>
     </main>
   </div>
 
-  <div class="preview" id="preview"><img id="previewImage" alt=""><div class="preview-name" id="previewName"></div></div>
+  <aside id="preview"><img id="previewImg" alt=""><div id="previewTitle"></div></aside>
 
-  <div class="modal-backdrop hidden" id="settingsModal">
-    <div class="modal">
-      <div class="titlebar"><div class="title-left"><div class="app-icon">⚙</div><span>CommandForge Settings</span></div><button class="window-button" id="closeSettingsBtn">×</button></div>
-      <div class="modal-content">
-        <div class="notice">Hover preview, commander art, and workspace preferences are saved only in this browser on this device.</div>
-        <div class="settings-grid">
-          <div><label for="commanderInput">Commander / Deck Leader</label><input id="commanderInput" placeholder="Set from Library, or type a name"></div>
-          <div><label for="commanderImageInput">Commander image URL (optional)</label><input id="commanderImageInput" placeholder="Automatically filled when selected from Library"></div>
-          <div><label for="previewEnabled">Hover full-card preview</label><select id="previewEnabled"><option value="yes">Enabled</option><option value="no">Off</option></select></div>
-          <div><label for="previewDelay">Preview delay <span class="range-value" id="delayValue">250 ms</span></label><input id="previewDelay" type="range" min="0" max="900" step="50" value="250"></div>
-          <div><label for="previewScale">Preview size <span class="range-value" id="scaleValue">1.48×</span></label><input id="previewScale" type="range" min="1" max="2.2" step=".05" value="1.48"></div>
-          <div><label for="backgroundOpacity">Commander background <span class="range-value" id="opacityValue">16%</span></label><input id="backgroundOpacity" type="range" min="0" max="35" step="1" value="16"></div>
-          <div><label for="primaryTribe">Primary tribe</label><input id="primaryTribe" placeholder="Example: Elf"></div>
-          <div><label for="powerLevel">Power target</label><select id="powerLevel"><option>Casual</option><option selected>Tuned</option><option>High Power</option><option>Competitive</option></select></div>
+  <div class="modal-wrap hidden" id="settingsModal">
+    <section class="modal">
+      <header class="titlebar"><div class="title-left"><span class="app-icon">⚙</span><span>Settings</span></div><button class="win-button" id="settingsClose">×</button></header>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div><label>Commander / Deck Leader</label><input id="settingCommander"></div>
+          <div><label>Commander image URL</label><input id="settingCommanderImage" placeholder="Filled when set from Library"></div>
+          <div><label>Hover preview</label><select id="settingPreview"><option value="yes">Enabled</option><option value="no">Off</option></select></div>
+          <div><label>Hover delay <span class="range-value" id="delayOut"></span></label><input id="settingDelay" type="range" min="0" max="900" step="50"></div>
+          <div><label>Preview size <span class="range-value" id="scaleOut"></span></label><input id="settingScale" type="range" min="1" max="2.2" step=".05"></div>
+          <div><label>Commander background <span class="range-value" id="opacityOut"></span></label><input id="settingOpacity" type="range" min="0" max="35" step="1"></div>
         </div>
-        <div class="modal-actions"><button id="cancelSettingsBtn">Cancel</button><button id="saveSettingsBtn">Save Settings</button></div>
+        <div class="modal-actions"><button id="settingsCancel">Cancel</button><button id="settingsSave">Save Settings</button></div>
       </div>
-    </div>
+    </section>
   </div>
 
-  <div class="modal-backdrop hidden" id="tokensModal">
-    <div class="modal">
-      <div class="titlebar"><div class="title-left"><div class="app-icon">✦</div><span>Custom Token Workshop</span></div><button class="window-button" id="closeTokensBtn">×</button></div>
-      <div class="modal-content">
+  <div class="modal-wrap hidden" id="tokensModal">
+    <section class="modal">
+      <header class="titlebar"><div class="title-left"><span class="app-icon">✦</span><span>Custom Token Workshop</span></div><button class="win-button" id="tokensClose">×</button></header>
+      <div class="modal-body">
         <div class="token-form">
-          <div><label>Token image</label><input id="tokenImage" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
+          <div><label>Token Image</label><input id="tokenFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
           <div><label>Name</label><input id="tokenName" placeholder="Elf Warrior"></div>
-          <div><label>Types</label><input id="tokenTypes" placeholder="Elf Warrior"></div>
+          <div><label>Types</label><input id="tokenType" placeholder="Elf Warrior"></div>
           <div><label>P / T</label><input id="tokenPT" placeholder="1/1"></div>
-          <div class="wide"><label>Rules text — optional</label><textarea id="tokenText" rows="2" placeholder="Custom token rules text..."></textarea></div>
+          <div class="wide"><label>Rules Text</label><textarea id="tokenRules" rows="2" placeholder="Optional token rules text"></textarea></div>
         </div>
-        <div class="modal-actions"><button id="createTokenBtn">Create Token</button></div>
-        <div class="token-gallery" id="tokenGallery"><div class="zone-message">Create a token, then drag it into a deck zone.</div></div>
+        <div class="modal-actions"><button id="tokenCreate">Create Token</button></div>
+        <div class="token-gallery" id="tokens"><div class="empty">Create a token, then drag it into a deck zone.</div></div>
       </div>
-    </div>
+    </section>
   </div>
 
-  <div class="modal-backdrop hidden" id="helpModal">
-    <div class="modal">
-      <div class="titlebar"><div class="title-left"><div class="app-icon">?</div><span>CommandForge Help</span></div><button class="window-button" id="closeHelpBtn">×</button></div>
-      <div class="modal-content">
-        <p><b>Resize:</b> drag the blue/gray center border to give the Library or Deck workspace more room.</p>
-        <p><b>Deck display:</b> Main Deck uses Grid when two card tiles fit, then changes to thumbnail List automatically when narrow. Grid/List buttons set your preferred view.</p>
-        <p><b>Preview:</b> hover a card or small list thumbnail; after the selected delay, a full card appears near your cursor.</p>
-        <p><b>Tokens:</b> open Tokens, upload your own image, create the token, then drag it to Main Deck, Maybe, or Sideboard.</p>
-        <div class="modal-actions"><button id="okHelpBtn">OK</button></div>
+  <div class="modal-wrap hidden" id="helpModal">
+    <section class="modal">
+      <header class="titlebar"><div class="title-left"><span class="app-icon">?</span><span>Help</span></div><button class="win-button" id="helpClose">×</button></header>
+      <div class="modal-body">
+        <p><b>Resize:</b> drag the narrow center divider to resize Library and Deck.</p>
+        <p><b>Main Deck:</b> it uses Grid when two card tiles fit; it safely changes to thumbnail List when the panel is too narrow.</p>
+        <p><b>Preview:</b> hover any card or list row briefly to open a full-card preview. Adjust the delay and size in Settings.</p>
+        <p><b>Tokens:</b> create custom image tokens in the separate Tokens window, then drag them to a deck tab.</p>
+        <div class="modal-actions"><button id="helpOk">OK</button></div>
       </div>
-    </div>
+    </section>
   </div>
 
 <script>
-const STORAGE_KEY="commandforge-resizable-v1";
-const SIZES=["compact","normal","large"];
-const $=id=>document.getElementById(id);
+/* COMMAND_FORGE_TABBED_DECK_V2 */
+const STORE="command-forge-tabbed-deck-v2";
+const $=x=>document.getElementById(x);
 const state={
-  deckName:"Untitled Deck",format:"Commander",sideMode:"maybeboard",activeTab:"deck",
-  deckViewPreference:"grid",autoList:false,librarySize:"normal",libraryWidth:null,
-  commander:"",commanderImage:"",selectedCard:null,deck:[],maybe:[],side:[],tokens:[],
-  settings:{previewEnabled:true,previewDelay:250,previewScale:1.48,backgroundOpacity:16,primaryTribe:"",powerLevel:"Tuned"}
+  name:"Untitled Deck", format:"Commander", sideMode:"maybeboard", tab:"deck",
+  view:"grid", autoList:false, density:"normal", libraryWidth:null,
+  selected:null, commander:"", commanderImage:"",
+  deck:[], maybe:[], side:[], tokens:[],
+  settings:{preview:true,delay:250,scale:1.45,opacity:14}
 };
-let previewTimer=null,dragging=false,lastPointer={x:0,y:0};
+let hoverTimer=null, isDragging=false;
 
-function esc(v=""){return String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
-function imageOf(c,size="normal"){
-  const uri=c.image||c.image_uris?.[size]||c.image_uris?.normal||c.card_faces?.[0]?.image_uris?.[size]||c.card_faces?.[0]?.image_uris?.normal||"";
-  return uri;
+function safe(v=""){return String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;")}
+function img(card,size="normal"){return card.image||card.image_uris?.[size]||card.image_uris?.normal||card.card_faces?.[0]?.image_uris?.[size]||card.card_faces?.[0]?.image_uris?.normal||""}
+function normalize(c){return{id:c.id,oracle_id:c.oracle_id||c.id,name:c.name,type_line:c.type_line||"Custom Token",image:c.image||img(c),thumb:c.thumb||img(c,"small"),custom:!!c.custom,details:c.details||""}}
+function cardKey(c){return c.custom?`token:${c.id}`:`card:${c.oracle_id||c.id}`}
+function copies(zone){return state[zone].reduce((a,x)=>a+x.qty,0)}
+function say(text){$("message").textContent=text}
+function save(){state.name=$("deckName").value||"Untitled Deck";state.format=$("format").value;state.sideMode=$("sideMode").value;localStorage.setItem(STORE,JSON.stringify(state))}
+function load(){try{const x=JSON.parse(localStorage.getItem(STORE));if(x)Object.assign(state,x,{settings:{...state.settings,...(x.settings||{})}})}catch{}}
+function applyDensity(d){
+  state.density=d;
+  const root=document.documentElement.style;
+  if(d==="compact"){root.setProperty("--library-card","82px");root.setProperty("--deck-card","98px");root.setProperty("--gap","6px")}
+  if(d==="normal"){root.setProperty("--library-card","112px");root.setProperty("--deck-card","132px");root.setProperty("--gap","8px")}
+  if(d==="large"){root.setProperty("--library-card","160px");root.setProperty("--deck-card","178px");root.setProperty("--gap","10px")}
+  $("density").value=d; save(); checkWidth();
 }
-function normalize(c){return {id:c.id,oracle_id:c.oracle_id||c.id,name:c.name,type_line:c.type_line||"Custom Token",mana_cost:c.mana_cost||"",image:c.image||imageOf(c),thumb:c.thumb||imageOf(c,"small"),customToken:!!c.customToken,tokenDetails:c.tokenDetails||""}}
-function keyOf(c){return c.customToken?`token:${c.id}`:`card:${c.oracle_id||c.id}`}
-function count(zone){return state[zone].reduce((n,x)=>n+x.qty,0)}
-function status(t){$("status").textContent=t}
-function currentView(){return state.autoList?"list":state.deckViewPreference}
-function save(){state.deckName=$("deckName").value||"Untitled Deck";state.format=$("formatSelect").value;state.sideMode=$("sideMode").value;localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
-function load(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY));if(d)Object.assign(state,d,{settings:{...state.settings,...(d.settings||{})}})}catch{}}
-
-function applyLibrarySize(size){
-  state.librarySize=size;
-  const r=document.documentElement.style;
-  if(size==="compact"){r.setProperty("--card-w","88px");r.setProperty("--gap","6px")}
-  if(size==="normal"){r.setProperty("--card-w","126px");r.setProperty("--gap","9px")}
-  if(size==="large"){r.setProperty("--card-w","172px");r.setProperty("--gap","11px")}
-  $("cardSize").value=size;save();
+function add(zone,raw){
+  const c=normalize(raw),key=cardKey(c),old=state[zone].find(x=>cardKey(x.card)===key);
+  old?old.qty++:state[zone].push({card:c,qty:1});
+  say(`${c.name} added to ${zone==="deck"?"Main Deck":zone==="maybe"?"Maybe":"Sideboard"}.`); renderAll(); save();
 }
-function resizeLibrary(dir){const i=Math.max(0,Math.min(SIZES.length-1,SIZES.indexOf(state.librarySize)+dir));if(i===SIZES.indexOf(state.librarySize))return;applyLibrarySize(SIZES[i]);status(`Library cards: ${SIZES[i]}.`)}
+function remove(zone,key){
+  const a=state[zone],i=a.findIndex(x=>cardKey(x.card)===key);if(i<0)return;
+  a[i].qty--;if(a[i].qty<1)a.splice(i,1);renderAll();save();
+}
+function move(from,to,key){const found=state[from].find(x=>cardKey(x.card)===key);if(!found)return;const name=found.card.name;add(to,found.card);remove(from,key);say(`Moved ${name}.`)}
 
-function add(zone,raw){const card=normalize(raw),k=keyOf(card),found=state[zone].find(x=>keyOf(x.card)===k);found?found.qty++:state[zone].push({card,qty:1});status(`${card.name} added to ${zone==="deck"?"Main Deck":zone==="maybe"?"Maybe":"Sideboard"}.`);renderAll();save()}
-function remove(zone,k){const a=state[zone],i=a.findIndex(x=>keyOf(x.card)===k);if(i<0)return;a[i].qty--;if(a[i].qty<1)a.splice(i,1);renderAll();save()}
-function move(from,to,k){const item=state[from].find(x=>keyOf(x.card)===k);if(!item)return;const name=item.card.name;add(to,item.card);remove(from,k);status(`Moved ${name}.`)}
-
-function attachPreview(node,card){
-  node.addEventListener("pointerenter",e=>{lastPointer={x:e.clientX,y:e.clientY};if(!state.settings.previewEnabled||dragging)return;clearTimeout(previewTimer);previewTimer=setTimeout(()=>showPreview(card,lastPointer.x,lastPointer.y),state.settings.previewDelay)});
-  node.addEventListener("pointermove",e=>{lastPointer={x:e.clientX,y:e.clientY}});
+function hidePreview(){clearTimeout(hoverTimer);$("preview").classList.remove("show");setTimeout(()=>{if(!$("preview").classList.contains("show"))$("preview").style.display="none"},140)}
+function preview(card,e){
+  if(!state.settings.preview||isDragging)return;
+  clearTimeout(hoverTimer);
+  hoverTimer=setTimeout(()=>{
+    if(isDragging)return;
+    const source=img(card,"large")||img(card);if(!source)return;
+    const p=$("preview");$("previewImg").src=source;$("previewTitle").textContent=card.name;p.style.display="block";
+    let left=e.clientX+18, top=e.clientY-35;
+    if(left+285>innerWidth)left=e.clientX-295;if(top+395>innerHeight)top=innerHeight-395;if(top<8)top=8;
+    p.style.left=left+"px";p.style.top=top+"px";requestAnimationFrame(()=>p.classList.add("show"));
+  },state.settings.delay);
+}
+function hover(node,card){
+  node.classList.add("hover-grow");
+  node.addEventListener("pointerenter",e=>preview(card,e));
   node.addEventListener("pointerleave",hidePreview);
 }
-function showPreview(card,x,y){
-  if(dragging||!state.settings.previewEnabled)return;
-  const src=imageOf(card,"large")||imageOf(card);if(!src)return;
-  const p=$("preview"),img=$("previewImage"),name=$("previewName");img.src=src;name.textContent=card.name;
-  p.style.display="block";const w=280,h=390;let left=x+18,top=y-40;
-  if(left+w>innerWidth-8)left=x-w-18;if(top+h>innerHeight-8)top=innerHeight-h-8;if(top<8)top=8;
-  p.style.left=`${left}px`;p.style.top=`${top}px`;requestAnimationFrame(()=>p.classList.add("show"));
+function dragSource(node,card,from,key=""){
+  node.addEventListener("dragstart",e=>{isDragging=true;hidePreview();e.dataTransfer.setData("card",JSON.stringify(card));e.dataTransfer.setData("from",from);e.dataTransfer.setData("key",key);e.dataTransfer.effectAllowed=from==="library"||from==="token"?"copy":"move"});
+  node.addEventListener("dragend",()=>isDragging=false);
 }
-function hidePreview(){clearTimeout(previewTimer);$("preview").classList.remove("show");setTimeout(()=>{if(!$("preview").classList.contains("show"))$("preview").style.display="none"},140)}
-
 function renderLibrary(cards){
-  const g=$("libraryGrid");if(!cards?.length){g.innerHTML=`<div class="zone-message">No cards found. Try another search.</div>`;return}
-  g.innerHTML=cards.map(c=>{const data=encodeURIComponent(JSON.stringify(normalize(c))),img=imageOf(c,"normal");return `<article class="magic-card" draggable="true" data-card="${data}">${img?`<img src="${esc(img)}" alt="${esc(c.name)}">`:""}<div class="magic-name">${esc(c.name)}</div><div class="magic-type">${esc(c.type_line||"Magic Card")}</div><button class="add-mini add-main" data-card="${data}">+ Main</button><button class="add-mini add-maybe" data-card="${data}">+ Maybe</button></article>`}).join("");
-  g.querySelectorAll(".magic-card").forEach(n=>{const c=JSON.parse(decodeURIComponent(n.dataset.card));attachPreview(n,c);n.addEventListener("click",()=>{state.selectedCard=c;status(`Selected: ${c.name}.`)});n.addEventListener("dragstart",e=>{dragging=true;hidePreview();e.dataTransfer.setData("application/json",n.dataset.card);e.dataTransfer.setData("from","library");e.dataTransfer.effectAllowed="copy"});n.addEventListener("dragend",()=>{dragging=false})});
-  g.querySelectorAll(".add-main").forEach(b=>b.onclick=e=>{e.stopPropagation();add("deck",JSON.parse(decodeURIComponent(b.dataset.card)))});
-  g.querySelectorAll(".add-maybe").forEach(b=>b.onclick=e=>{e.stopPropagation();add("maybe",JSON.parse(decodeURIComponent(b.dataset.card)))});
+  const box=$("library");
+  if(!cards?.length){box.innerHTML=`<div class="empty">No cards found. Try another search.</div>`;return}
+  box.innerHTML=cards.map(c=>{
+    const data=encodeURIComponent(JSON.stringify(normalize(c))),src=img(c);
+    return `<article class="card" draggable="true" data-card="${data}">${src?`<img src="${safe(src)}" alt="${safe(c.name)}">`:""}<div class="card-name">${safe(c.name)}</div><div class="card-type">${safe(c.type_line||"Magic Card")}</div><button class="mini-add main-add" data-card="${data}">+ Main</button><button class="mini-add maybe-add" data-card="${data}">+ Maybe</button></article>`;
+  }).join("");
+  box.querySelectorAll(".card").forEach(node=>{
+    const c=JSON.parse(decodeURIComponent(node.dataset.card));hover(node,c);dragSource(node,c,"library");
+    node.addEventListener("click",()=>{state.selected=c;say(`Selected: ${c.name}.`)});
+  });
+  box.querySelectorAll(".main-add").forEach(b=>b.onclick=e=>{e.stopPropagation();add("deck",JSON.parse(decodeURIComponent(b.dataset.card)))});
+  box.querySelectorAll(".maybe-add").forEach(b=>b.onclick=e=>{e.stopPropagation();add("maybe",JSON.parse(decodeURIComponent(b.dataset.card)))});
 }
-function zoneLabel(z){return z==="deck"?"Main Deck":z==="maybe"?"Maybe":"Sideboard"}
-function renderZone(zone,nodeId){
-  const node=$(nodeId),items=state[zone],view=(zone==="deck"?currentView():state.deckViewPreference);
-  if(!items.length){node.innerHTML=`<div class="zone-message">Drag cards here from the Library or another deck tab.</div>`;return}
-  const sorted=[...items].sort((a,b)=>a.card.name.localeCompare(b.card.name));
-  if(view==="grid"){
-    node.innerHTML=`<div class="deck-grid">${sorted.map(x=>{const k=encodeURIComponent(keyOf(x.card)),d=encodeURIComponent(JSON.stringify(x.card)),img=imageOf(x.card);return `<article class="deck-tile" draggable="true" data-key="${k}" data-card="${d}">${img?`<img src="${esc(img)}" alt="${esc(x.card.name)}">`:""}<span class="tile-count">${x.qty}x</span><div class="tile-name">${esc(x.card.name)}</div><div class="tile-controls"><button class="minus" data-key="${k}">−</button><button class="to-next" data-key="${k}">↔</button></div></article>`}).join("")}</div>`;
+function renderZone(zone){
+  const box=$(`zone-${zone}`),items=[...state[zone]].sort((a,b)=>a.card.name.localeCompare(b.card.name));
+  if(!items.length){box.innerHTML=`<div class="empty">Drag cards here from Library, Tokens, or another tab.</div>`;return}
+  const useList=zone==="deck"?(state.autoList||state.view==="list"):state.view==="list";
+  if(useList){
+    box.innerHTML=`<div class="deck-list">${items.map(x=>{
+      const k=encodeURIComponent(cardKey(x.card)),d=encodeURIComponent(JSON.stringify(x.card)),source=x.card.thumb||img(x.card,"small")||img(x.card);
+      return `<article class="deck-row" draggable="true" data-key="${k}" data-card="${d}">${source?`<img src="${safe(source)}" alt="">`:""}<span class="count">${x.qty}x</span><div><div class="row-name">${safe(x.card.name)}</div><div class="row-type">${safe(x.card.type_line)}</div></div><button class="tiny minus" data-key="${k}">−</button><button class="tiny move" data-key="${k}">↔</button></article>`;
+    }).join("")}</div>`;
   }else{
-    node.innerHTML=`<div class="deck-list">${sorted.map(x=>{const k=encodeURIComponent(keyOf(x.card)),d=encodeURIComponent(JSON.stringify(x.card)),thumb=x.card.thumb||imageOf(x.card,"small")||imageOf(x.card);return `<article class="deck-row" draggable="true" data-key="${k}" data-card="${d}">${thumb?`<img src="${esc(thumb)}" alt="">`:""}<span class="deck-count">${x.qty}x</span><div><div class="deck-card-name">${esc(x.card.name)}</div><div class="deck-card-meta">${esc(x.card.type_line)}</div></div><button class="tiny-button minus" data-key="${k}">−</button><button class="tiny-button to-next" data-key="${k}">↔</button></article>`}).join("")}</div>`;
+    box.innerHTML=`<div class="deck-grid">${items.map(x=>{
+      const k=encodeURIComponent(cardKey(x.card)),d=encodeURIComponent(JSON.stringify(x.card)),source=img(x.card);
+      return `<article class="deck-card" draggable="true" data-key="${k}" data-card="${d}">${source?`<img src="${safe(source)}" alt="${safe(x.card.name)}">`:""}<b class="qty">${x.qty}x</b><div class="deck-name">${safe(x.card.name)}</div><div class="controls"><button class="minus" data-key="${k}">−</button><button class="move" data-key="${k}">↔</button></div></article>`;
+    }).join("")}</div>`;
   }
-  node.querySelectorAll("[draggable='true']").forEach(n=>{const c=JSON.parse(decodeURIComponent(n.dataset.card));attachPreview(n,c);n.addEventListener("dragstart",e=>{dragging=true;hidePreview();e.dataTransfer.setData("application/json",n.dataset.card);e.dataTransfer.setData("from",zone);e.dataTransfer.setData("key",decodeURIComponent(n.dataset.key));e.dataTransfer.effectAllowed="move"});n.addEventListener("dragend",()=>dragging=false)});
-  node.querySelectorAll(".minus").forEach(b=>b.onclick=()=>remove(zone,decodeURIComponent(b.dataset.key)));
-  node.querySelectorAll(".to-next").forEach(b=>b.onclick=()=>{const target=zone==="deck"?"maybe":zone==="maybe"?"side":"deck";move(zone,target,decodeURIComponent(b.dataset.key))});
+  box.querySelectorAll("[draggable='true']").forEach(node=>{
+    const c=JSON.parse(decodeURIComponent(node.dataset.card)),k=decodeURIComponent(node.dataset.key);
+    hover(node,c);dragSource(node,c,zone,k);
+  });
+  box.querySelectorAll(".minus").forEach(b=>b.onclick=()=>remove(zone,decodeURIComponent(b.dataset.key)));
+  box.querySelectorAll(".move").forEach(b=>b.onclick=()=>move(zone,zone==="deck"?"maybe":zone==="maybe"?"side":"deck",decodeURIComponent(b.dataset.key)));
 }
 function renderTokens(){
-  const g=$("tokenGallery");if(!state.tokens.length){g.innerHTML=`<div class="zone-message">Create a token, then drag it into a deck zone.</div>`;return}
-  g.innerHTML=state.tokens.map(t=>{const d=encodeURIComponent(JSON.stringify(t));return `<article class="token-card" draggable="true" data-token="${d}"><button class="token-delete" data-id="${esc(t.id)}">×</button>${t.image?`<img src="${esc(t.image)}" alt="${esc(t.name)}">`:""}<div class="token-name">${esc(t.name)}</div><div class="token-detail">${esc(t.type_line)}</div><div class="token-detail">${esc(t.tokenDetails)}</div></article>`}).join("");
-  g.querySelectorAll(".token-card").forEach(n=>{const t=JSON.parse(decodeURIComponent(n.dataset.token));attachPreview(n,t);n.addEventListener("dragstart",e=>{dragging=true;e.dataTransfer.setData("application/json",n.dataset.token);e.dataTransfer.setData("from","token")});n.addEventListener("dragend",()=>dragging=false)});
-  g.querySelectorAll(".token-delete").forEach(b=>b.onclick=e=>{e.stopPropagation();state.tokens=state.tokens.filter(t=>t.id!==b.dataset.id);renderTokens();save()});
+  const box=$("tokens");
+  if(!state.tokens.length){box.innerHTML=`<div class="empty">Create a token, then drag it into a deck zone.</div>`;return}
+  box.innerHTML=state.tokens.map(t=>{
+    const d=encodeURIComponent(JSON.stringify(t));
+    return `<article class="token" draggable="true" data-token="${d}"><button class="delete-token" data-id="${safe(t.id)}">×</button>${t.image?`<img src="${safe(t.image)}" alt="${safe(t.name)}">`:""}<strong>${safe(t.name)}</strong><small>${safe(t.type_line)}</small><small>${safe(t.details)}</small></article>`;
+  }).join("");
+  box.querySelectorAll(".token").forEach(node=>{const t=JSON.parse(decodeURIComponent(node.dataset.token));hover(node,t);dragSource(node,t,"token")});
+  box.querySelectorAll(".delete-token").forEach(b=>b.onclick=e=>{e.stopPropagation();state.tokens=state.tokens.filter(t=>t.id!==b.dataset.id);renderTokens();save()});
 }
-function updateCommanderArt(){const bg=$("commanderBackground");bg.style.backgroundImage=state.commanderImage?`url("${state.commanderImage}")`:"";document.documentElement.style.setProperty("--commander-opacity",`${state.settings.backgroundOpacity/100}`)}
-function updateSummary(){
-  const total=count("deck"),target=["Commander","Brawl","Oathbreaker"].includes(state.format)?100:60;
-  $("deckFooter").textContent=`${state.deck.length} unique cards • ${total} total cards`;$("deckTarget").textContent=`${total} / ${target}`;
-  $("maybeFooter").textContent=`${state.maybe.length} unique cards • ${count("maybe")} total cards`;$("sideFooter").textContent=`${state.side.length} unique cards • ${count("side")} total cards`;
-  $("sideRule").textContent=state.sideMode==="sideboard"?"Official sideboard mode":"Flexible side pile";
-  $("commanderStatus").textContent=state.commander?`Commander: ${state.commander}`:"Commander: none selected";
-  $("health").textContent=`Deck: ${total} | Maybe: ${count("maybe")} | Side: ${count("side")} | Tokens: ${state.tokens.length}`;
-  $("autoViewReadout").textContent=state.autoList?"Auto: List (panel narrow)":"";
-  $("gridViewBtn").classList.toggle("active",state.deckViewPreference==="grid");$("listViewBtn").classList.toggle("active",state.deckViewPreference==="list");
-  updateCommanderArt();
+function update(){
+  const total=copies("deck"),target=["Commander","Brawl","Oathbreaker"].includes(state.format)?100:60;
+  $("deckSummary").textContent=`${state.deck.length} unique • ${total} cards`;$("deckTarget").textContent=`${total} / ${target}`;
+  $("maybeSummary").textContent=`${state.maybe.length} unique • ${copies("maybe")} cards`;$("sideSummary").textContent=`${state.side.length} unique • ${copies("side")} cards`;
+  $("sideText").textContent=state.sideMode==="sideboard"?"Official sideboard mode":"Flexible side pile";
+  $("commanderLabel").textContent=state.commander?`Commander: ${state.commander}`:"Commander: none selected";
+  $("totals").textContent=`Deck ${total} | Maybe ${copies("maybe")} | Side ${copies("side")} | Tokens ${state.tokens.length}`;
+  $("autoMode").textContent=state.autoList?"Auto List: panel too narrow":"";
+  $("gridBtn").classList.toggle("active",state.view==="grid");$("listBtn").classList.toggle("active",state.view==="list");
+  $("commanderArt").style.backgroundImage=state.commanderImage?`url("${state.commanderImage}")`:"";
+  document.documentElement.style.setProperty("--commander-opacity",state.settings.opacity/100);
+  document.documentElement.style.setProperty("--preview-scale",state.settings.scale);
 }
-function renderAll(){renderZone("deck","deckZone");renderZone("maybe","maybeZone");renderZone("side","sideZone");renderTokens();updateSummary()}
-
-function activateTab(tab){state.activeTab=tab;document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));document.querySelectorAll(".tab-content").forEach(p=>p.classList.toggle("active",p.id===`tab-${tab}`));save()}
-function setView(v){state.deckViewPreference=v;renderAll();save();status(`Preferred deck view: ${v}.`)}
-function checkDeckWidth(){
-  const p=$("deckPanel"),styles=getComputedStyle(document.documentElement),w=parseFloat(styles.getPropertyValue("--card-w")),gap=parseFloat(styles.getPropertyValue("--gap"));
-  const needed=(w*2)+gap+40;const tooNarrow=p.clientWidth<needed+28;
-  if(state.autoList!==tooNarrow){state.autoList=tooNarrow;renderAll();save()}
+function renderAll(){renderZone("deck");renderZone("maybe");renderZone("side");renderTokens();update()}
+function selectTab(tab){
+  state.tab=tab;document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===tab));document.querySelectorAll(".tab-page").forEach(x=>x.classList.toggle("active",x.id===`page-${tab}`));save();
 }
-function connectDrop(node,target){
-  node.addEventListener("dragover",e=>{e.preventDefault();node.classList.add("over")});node.addEventListener("dragleave",()=>node.classList.remove("over"));
-  node.addEventListener("drop",e=>{e.preventDefault();node.classList.remove("over");dragging=false;const raw=e.dataTransfer.getData("application/json"),from=e.dataTransfer.getData("from"),k=e.dataTransfer.getData("key");if(!raw)return;const c=JSON.parse(raw);if(["deck","maybe","side"].includes(from)){if(from!==target)move(from,target,k||keyOf(c))}else add(target,c)});
+function checkWidth(){
+  const width=$("deckPanel").clientWidth;
+  const cw=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--deck-card"));
+  const gap=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--gap"));
+  const forced=width<(cw*2+gap+55);
+  if(forced!==state.autoList){state.autoList=forced;renderAll();save()}
 }
-async function searchCards(q){
-  q=q.trim();if(!q){renderLibrary([]);return}status(`Searching Scryfall for “${q}”...`);$("libraryHint").textContent=`searching: ${q}`;
-  try{const r=await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(q)}&unique=cards&order=name`,{headers:{Accept:"application/json"}});if(!r.ok)throw Error(r.status===404?"No cards found.":"Search failed.");const d=await r.json(),cards=(d.data||[]).slice(0,48);renderLibrary(cards);$("libraryHint").textContent=`${cards.length} cards shown`;status(`Showing ${cards.length} cards.`)}catch(e){renderLibrary([]);$("libraryHint").textContent="no results";status(e.message||"Search failed.")}
+function dropZone(node,target){
+  node.addEventListener("dragover",e=>{e.preventDefault();node.classList.add("over")});
+  node.addEventListener("dragleave",()=>node.classList.remove("over"));
+  node.addEventListener("drop",e=>{
+    e.preventDefault();node.classList.remove("over");isDragging=false;
+    const raw=e.dataTransfer.getData("card"),from=e.dataTransfer.getData("from"),key=e.dataTransfer.getData("key");if(!raw)return;
+    const c=JSON.parse(raw);
+    if(["deck","maybe","side"].includes(from)){if(from!==target)move(from,target,key||cardKey(c))}else add(target,c);
+  });
+}
+async function search(q){
+  q=q.trim();if(!q){renderLibrary([]);return}
+  $("libraryInfo").textContent=`searching: ${q}`;say(`Searching Scryfall for “${q}”...`);
+  try{
+    const r=await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(q)}&unique=cards&order=name`,{headers:{Accept:"application/json"}});
+    if(!r.ok)throw Error(r.status===404?"No cards found.":"Search failed.");
+    const data=await r.json(),cards=(data.data||[]).slice(0,48);renderLibrary(cards);$("libraryInfo").textContent=`${cards.length} cards shown`;say(`Showing ${cards.length} cards.`);
+  }catch(err){renderLibrary([]);$("libraryInfo").textContent="no results";say(err.message)}
+}
+function ranges(){
+  $("delayOut").textContent=`${$("settingDelay").value} ms`;
+  $("scaleOut").textContent=`${Number($("settingScale").value).toFixed(2)}×`;
+  $("opacityOut").textContent=`${$("settingOpacity").value}%`;
+}
+function openSettings(){
+  $("settingCommander").value=state.commander;$("settingCommanderImage").value=state.commanderImage;
+  $("settingPreview").value=state.settings.preview?"yes":"no";$("settingDelay").value=state.settings.delay;$("settingScale").value=state.settings.scale;$("settingOpacity").value=state.settings.opacity;ranges();$("settingsModal").classList.remove("hidden");
 }
 function createToken(){
-  const file=$("tokenImage").files[0],name=$("tokenName").value.trim(),types=$("tokenTypes").value.trim(),pt=$("tokenPT").value.trim(),text=$("tokenText").value.trim();if(!name){status("Give the token a name first.");return}
-  const finish=image=>{state.tokens.push({id:`token-${Date.now()}-${Math.random().toString(16).slice(2)}`,name,type_line:types||"Custom Token",image,thumb:image,customToken:true,tokenDetails:[pt,text].filter(Boolean).join(" • ")});["tokenImage","tokenName","tokenTypes","tokenPT","tokenText"].forEach(id=>$(id).value="");renderTokens();save();status(`Created ${name}.`)}
-  if(!file)return finish("");const reader=new FileReader();reader.onload=()=>finish(reader.result);reader.onerror=()=>status("Could not read token image.");reader.readAsDataURL(file);
+  const f=$("tokenFile").files[0],name=$("tokenName").value.trim(),type=$("tokenType").value.trim(),pt=$("tokenPT").value.trim(),rules=$("tokenRules").value.trim();
+  if(!name){say("Enter a token name first.");return}
+  const finish=image=>{
+    state.tokens.push({id:`t-${Date.now()}-${Math.random().toString(16).slice(2)}`,name,type_line:type||"Custom Token",image,thumb:image,custom:true,details:[pt,rules].filter(Boolean).join(" • ")});
+    ["tokenFile","tokenName","tokenType","tokenPT","tokenRules"].forEach(id=>$(id).value="");renderTokens();save();say(`Created token: ${name}.`);
+  };
+  if(!f)return finish("");const reader=new FileReader();reader.onload=()=>finish(reader.result);reader.onerror=()=>say("Could not read that image.");reader.readAsDataURL(f);
 }
 
-let splitStart=null;
-$("splitter").addEventListener("pointerdown",e=>{splitStart={x:e.clientX,w:$("libraryPanel").getBoundingClientRect().width};$("splitter").setPointerCapture(e.pointerId);$("splitter").classList.add("dragging");document.body.style.userSelect="none";hidePreview()});
-$("splitter").addEventListener("pointermove",e=>{if(!splitStart)return;const work=$("workbench").getBoundingClientRect(),minLib=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--library-min")),minDeck=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--deck-min"));let w=splitStart.w+(e.clientX-splitStart.x);w=Math.max(minLib,Math.min(w,work.width-minDeck-12));$("libraryPanel").style.width=`${w}px`;state.libraryWidth=w;checkDeckWidth()});
-function stopSplit(){if(!splitStart)return;splitStart=null;$("splitter").classList.remove("dragging");document.body.style.userSelect="";save()}
-$("splitter").addEventListener("pointerup",stopSplit);$("splitter").addEventListener("lostpointercapture",stopSplit);
+/* Splitter */
+let split=null;
+$("splitter").addEventListener("pointerdown",e=>{
+  split={x:e.clientX,width:$("libraryPanel").getBoundingClientRect().width};
+  $("splitter").setPointerCapture(e.pointerId);$("splitter").classList.add("dragging");document.body.style.userSelect="none";hidePreview();
+});
+$("splitter").addEventListener("pointermove",e=>{
+  if(!split)return;
+  const work=$("workspace").getBoundingClientRect();
+  let w=split.width+(e.clientX-split.x);
+  w=Math.max(285,Math.min(w,work.width-315-12));
+  $("libraryPanel").style.width=w+"px";state.libraryWidth=w;checkWidth();
+});
+function endSplit(){if(!split)return;split=null;$("splitter").classList.remove("dragging");document.body.style.userSelect="";save()}
+$("splitter").addEventListener("pointerup",endSplit);$("splitter").addEventListener("lostpointercapture",endSplit);
 
-$("searchBtn").onclick=()=>searchCards($("searchInput").value);
-$("searchInput").addEventListener("keydown",e=>{if(e.key==="Enter")searchCards($("searchInput").value)});
-$("clearSearchBtn").onclick=()=>{$("searchInput").value="";$("libraryHint").textContent="search or choose a type";$("libraryGrid").innerHTML=`<div class="zone-message">Search for a Magic card to fill the library.</div>`};
-document.querySelectorAll("[data-query]").forEach(b=>b.onclick=()=>{$("searchInput").value=b.dataset.query;searchCards(b.dataset.query)});
-$("cardSize").onchange=e=>applyLibrarySize(e.target.value);$("sizeDownBtn").onclick=()=>resizeLibrary(-1);$("sizeUpBtn").onclick=()=>resizeLibrary(1);
-$("formatSelect").onchange=()=>{state.format=$("formatSelect").value;updateSummary();save()};$("sideMode").onchange=()=>{state.sideMode=$("sideMode").value;updateSummary();save()};$("deckName").onchange=save;
-document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>activateTab(b.dataset.tab));$("gridViewBtn").onclick=()=>setView("grid");$("listViewBtn").onclick=()=>setView("list");
-$("setCommanderBtn").onclick=()=>{if(!state.selectedCard){status("Select a Library card first.");return}state.commander=state.selectedCard.name;state.commanderImage=imageOf(state.selectedCard,"art_crop")||imageOf(state.selectedCard);updateSummary();save();status(`${state.commander} set as commander.`)};
-$("sortBtn").onclick=()=>{const z=state.activeTab;state[z].sort((a,b)=>a.card.name.localeCompare(b.card.name));renderAll();save()};
-$("saveBtn").onclick=()=>{save();status("Saved to this browser.")};
-$("clearBtn").onclick=()=>{if(confirm("Clear Main Deck, Maybe, and Sideboard?")){state.deck=[];state.maybe=[];state.side=[];state.commander="";state.commanderImage="";renderAll();save();status("Deck zones cleared.")}};
-$("newDeckBtn").onclick=()=>{if(confirm("Start a new deck?")){state.deckName="Untitled Deck";state.deck=[];state.maybe=[];state.side=[];state.commander="";state.commanderImage="";$("deckName").value=state.deckName;renderAll();save()}};
+/* Controls */
+$("searchBtn").onclick=()=>search($("searchInput").value);
+$("searchInput").addEventListener("keydown",e=>{if(e.key==="Enter")search($("searchInput").value)});
+$("searchClearBtn").onclick=()=>{$("searchInput").value="";$("libraryInfo").textContent="search or choose a type";$("library").innerHTML=`<div class="empty">Search for Magic cards to fill the library.</div>`};
+document.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{$("searchInput").value=b.dataset.q;search(b.dataset.q)});
+$("format").onchange=()=>{state.format=$("format").value;update();save()};$("sideMode").onchange=()=>{state.sideMode=$("sideMode").value;update();save()};
+$("density").onchange=e=>applyDensity(e.target.value);$("deckName").onchange=save;
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>selectTab(b.dataset.tab));
+$("gridBtn").onclick=()=>{state.view="grid";renderAll();save()};$("listBtn").onclick=()=>{state.view="list";renderAll();save()};
+$("commanderBtn").onclick=()=>{if(!state.selected){say("Select a card in the Library first.");return}state.commander=state.selected.name;state.commanderImage=img(state.selected,"art_crop")||img(state.selected);update();save();say(`${state.commander} set as commander.`)};
+$("sortBtn").onclick=()=>{state[state.tab].sort((a,b)=>a.card.name.localeCompare(b.card.name));renderAll();save()};
+$("saveBtn").onclick=()=>{save();say("Saved in this browser.")};
+$("clearBtn").onclick=()=>{if(confirm("Clear Main Deck, Maybe, and Sideboard?")){state.deck=[];state.maybe=[];state.side=[];state.commander="";state.commanderImage="";renderAll();save()}};
+$("newBtn").onclick=()=>{if(confirm("Start a new deck?")){state.name="Untitled Deck";state.deck=[];state.maybe=[];state.side=[];state.commander="";state.commanderImage="";$("deckName").value=state.name;renderAll();save()}};
+$("settingsBtn").onclick=openSettings;$("settingsClose").onclick=()=>$("settingsModal").classList.add("hidden");$("settingsCancel").onclick=()=>$("settingsModal").classList.add("hidden");
+["settingDelay","settingScale","settingOpacity"].forEach(id=>$(id).oninput=ranges);
+$("settingsSave").onclick=()=>{
+  state.commander=$("settingCommander").value.trim();state.commanderImage=$("settingCommanderImage").value.trim();state.settings.preview=$("settingPreview").value==="yes";state.settings.delay=+$("settingDelay").value;state.settings.scale=+$("settingScale").value;state.settings.opacity=+$("settingOpacity").value;
+  $("settingsModal").classList.add("hidden");renderAll();save();say("Settings saved.");
+};
+$("tokensBtn").onclick=()=>{$("tokensModal").classList.remove("hidden");renderTokens()};$("tokensClose").onclick=()=>$("tokensModal").classList.add("hidden");$("tokenCreate").onclick=createToken;
+$("helpBtn").onclick=()=>$("helpModal").classList.remove("hidden");$("helpClose").onclick=()=>$("helpModal").classList.add("hidden");$("helpOk").onclick=()=>$("helpModal").classList.add("hidden");
 
-function openSettings(){
-  $("commanderInput").value=state.commander;$("commanderImageInput").value=state.commanderImage;$("previewEnabled").value=state.settings.previewEnabled?"yes":"no";$("previewDelay").value=state.settings.previewDelay;$("previewScale").value=state.settings.previewScale;$("backgroundOpacity").value=state.settings.backgroundOpacity;$("primaryTribe").value=state.settings.primaryTribe;$("powerLevel").value=state.settings.powerLevel;
-  updateSettingLabels();$("settingsModal").classList.remove("hidden")
-}
-function updateSettingLabels(){$("delayValue").textContent=`${$("previewDelay").value} ms`;$("scaleValue").textContent=`${Number($("previewScale").value).toFixed(2)}×`;$("opacityValue").textContent=`${$("backgroundOpacity").value}%`}
-$("settingsBtn").onclick=openSettings;$("closeSettingsBtn").onclick=()=>$("settingsModal").classList.add("hidden");$("cancelSettingsBtn").onclick=()=>$("settingsModal").classList.add("hidden");
-["previewDelay","previewScale","backgroundOpacity"].forEach(id=>$(id).oninput=updateSettingLabels);
-$("saveSettingsBtn").onclick=()=>{state.commander=$("commanderInput").value.trim();state.commanderImage=$("commanderImageInput").value.trim();state.settings.previewEnabled=$("previewEnabled").value==="yes";state.settings.previewDelay=+$("previewDelay").value;state.settings.previewScale=+$("previewScale").value;state.settings.backgroundOpacity=+$("backgroundOpacity").value;state.settings.primaryTribe=$("primaryTribe").value.trim();state.settings.powerLevel=$("powerLevel").value;document.documentElement.style.setProperty("--hover-scale",state.settings.previewScale);$("settingsModal").classList.add("hidden");renderAll();save();status("Settings saved.")};
+dropZone($("zone-deck"),"deck");dropZone($("zone-maybe"),"maybe");dropZone($("zone-side"),"side");
+new ResizeObserver(checkWidth).observe($("deckPanel"));
 
-$("tokensBtn").onclick=()=>{$("tokensModal").classList.remove("hidden");renderTokens()};$("closeTokensBtn").onclick=()=>$("tokensModal").classList.add("hidden");$("createTokenBtn").onclick=createToken;
-$("helpBtn").onclick=()=>$("helpModal").classList.remove("hidden");$("closeHelpBtn").onclick=()=>$("helpModal").classList.add("hidden");$("okHelpBtn").onclick=()=>$("helpModal").classList.add("hidden");
-
-connectDrop($("deckZone"),"deck");connectDrop($("maybeZone"),"maybe");connectDrop($("sideZone"),"side");
-new ResizeObserver(checkDeckWidth).observe($("deckPanel"));
 load();
-$("deckName").value=state.deckName;$("formatSelect").value=state.format;$("sideMode").value=state.sideMode;
-if(state.libraryWidth)$("libraryPanel").style.width=`${state.libraryWidth}px`;
-applyLibrarySize(state.librarySize||"normal");document.documentElement.style.setProperty("--hover-scale",state.settings.previewScale);activateTab(state.activeTab||"deck");renderAll();checkDeckWidth();
+$("deckName").value=state.name;$("format").value=state.format;$("sideMode").value=state.sideMode;
+if(state.libraryWidth)$("libraryPanel").style.width=state.libraryWidth+"px";
+applyDensity(state.density||"normal");selectTab(state.tab||"deck");renderAll();checkWidth();
 </script>
 </body>
 </html>
