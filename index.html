@@ -16,11 +16,11 @@
       --desktop: #008080;
       --yellow: #ffff00;
       --font: "MS Sans Serif", Tahoma, Arial, sans-serif;
+      --card-width: 105px;
+      --card-image-height: 120px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -29,7 +29,6 @@
       color: var(--black);
       font-family: var(--font);
       font-size: 13px;
-      image-rendering: pixelated;
     }
 
     button,
@@ -42,8 +41,8 @@
     button {
       min-height: 26px;
       padding: 4px 10px;
-      background: var(--win-gray);
       color: #000;
+      background: var(--win-gray);
       border-top: 2px solid #fff;
       border-left: 2px solid #fff;
       border-right: 2px solid #404040;
@@ -63,26 +62,24 @@
     input,
     select,
     textarea {
+      padding: 4px;
+      color: #000;
+      background: #fff;
       border-top: 2px solid #404040;
       border-left: 2px solid #404040;
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
-      background: #fff;
-      color: #000;
-      padding: 4px;
     }
 
-    textarea {
-      resize: vertical;
-    }
+    textarea { resize: vertical; }
 
     .desktop {
-      padding: 28px;
       min-height: 100vh;
+      padding: 28px;
     }
 
     .app {
-      max-width: 1500px;
+      max-width: 1540px;
       min-height: calc(100vh - 56px);
       margin: 0 auto;
       background: var(--win-gray);
@@ -99,10 +96,10 @@
       justify-content: space-between;
       height: 33px;
       padding: 4px 5px 4px 8px;
-      background: linear-gradient(90deg, var(--blue), #1084d0);
       color: #fff;
-      font-weight: bold;
+      background: linear-gradient(90deg, var(--blue), #1084d0);
       font-size: 14px;
+      font-weight: bold;
     }
 
     .title-left {
@@ -112,12 +109,12 @@
     }
 
     .app-icon {
+      display: grid;
       width: 18px;
       height: 18px;
-      display: grid;
       place-items: center;
-      background: var(--yellow);
       color: #000;
+      background: var(--yellow);
       border: 1px solid #fff;
       font-size: 12px;
     }
@@ -145,19 +142,19 @@
     .menu-button {
       min-height: 23px;
       padding: 2px 8px;
-      border: 0;
       background: transparent;
+      border: 0;
       box-shadow: none;
     }
 
     .menu-button:hover {
-      background: var(--blue);
       color: #fff;
+      background: var(--blue);
     }
 
     .toolbar {
       display: grid;
-      grid-template-columns: 1fr auto auto auto;
+      grid-template-columns: minmax(260px, 1fr) auto auto auto auto;
       gap: 8px;
       align-items: center;
       padding: 8px;
@@ -172,12 +169,31 @@
 
     .search-wrap input {
       width: 100%;
-      min-width: 220px;
+      min-width: 180px;
     }
 
     .toolbar label {
       font-weight: bold;
       white-space: nowrap;
+    }
+
+    .view-controls {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .view-controls span {
+      font-weight: bold;
+    }
+
+    .size-button {
+      width: 28px;
+      min-height: 26px;
+      padding: 0;
+      font-size: 17px;
+      font-weight: bold;
     }
 
     .status-strip {
@@ -186,9 +202,9 @@
       gap: 10px;
       min-height: 31px;
       padding: 4px 7px;
+      background: var(--win-gray);
       border-top: 2px solid #fff;
       border-bottom: 2px solid #808080;
-      background: var(--win-gray);
     }
 
     .field-label {
@@ -203,15 +219,15 @@
 
     .workspace {
       display: grid;
-      grid-template-columns: minmax(290px, 1fr) minmax(430px, 1.6fr) minmax(250px, .85fr);
+      grid-template-columns: minmax(300px, 1fr) minmax(430px, 1.55fr) minmax(245px, .8fr);
       gap: 8px;
+      min-height: 610px;
       padding: 8px;
-      min-height: 600px;
     }
 
     .window-panel {
-      min-width: 0;
       display: flex;
+      min-width: 0;
       flex-direction: column;
       background: var(--win-gray);
       border-top: 2px solid #808080;
@@ -222,10 +238,10 @@
 
     .panel-title {
       padding: 4px 6px;
-      background: #000080;
       color: #fff;
-      font-weight: bold;
+      background: #000080;
       font-size: 12px;
+      font-weight: bold;
       letter-spacing: .2px;
     }
 
@@ -245,28 +261,28 @@
 
     .card-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(var(--card-width), 1fr));
       gap: 7px;
       align-content: start;
+      min-height: 500px;
       padding: 8px;
       overflow: auto;
-      min-height: 500px;
       background: #e9e9e9;
     }
 
     .magic-card,
     .token-card {
       position: relative;
+      min-height: 160px;
+      padding: 4px;
       overflow: hidden;
-      min-height: 185px;
-      padding: 5px;
+      user-select: none;
+      background: #f4f4f4;
       border-top: 2px solid #fff;
       border-left: 2px solid #fff;
       border-right: 2px solid #404040;
       border-bottom: 2px solid #404040;
-      background: #f4f4f4;
       cursor: grab;
-      user-select: none;
     }
 
     .magic-card:active,
@@ -278,34 +294,34 @@
     .token-card img {
       display: block;
       width: 100%;
-      height: 145px;
+      height: var(--card-image-height);
       object-fit: cover;
-      border: 1px solid #000;
       background: #1d1d1d;
+      border: 1px solid #000;
     }
 
     .magic-card-name {
-      margin-top: 4px;
+      margin-top: 3px;
       overflow: hidden;
+      font-size: 11px;
+      font-weight: bold;
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-weight: bold;
-      font-size: 12px;
     }
 
     .magic-card-type {
-      min-height: 25px;
+      min-height: 22px;
       overflow: hidden;
-      font-size: 10px;
-      line-height: 12px;
+      font-size: 9px;
+      line-height: 11px;
     }
 
     .add-mini {
       width: 100%;
-      min-height: 22px;
-      margin-top: 3px;
-      padding: 1px 4px;
-      font-size: 11px;
+      min-height: 20px;
+      margin-top: 2px;
+      padding: 1px 3px;
+      font-size: 10px;
     }
 
     .drop-zone {
@@ -325,46 +341,44 @@
     .zone-message {
       padding: 16px 10px;
       color: #555;
-      text-align: center;
       font-style: italic;
+      text-align: center;
     }
 
     .deck-row {
       display: grid;
-      grid-template-columns: 54px 1fr 32px 31px;
+      grid-template-columns: 50px 1fr 28px 29px;
       gap: 6px;
       align-items: center;
       margin-bottom: 5px;
       padding: 5px;
-      border: 1px solid #999;
       background: #f8f8f8;
+      border: 1px solid #999;
     }
 
-    .deck-row:hover {
-      background: #e2efff;
-    }
+    .deck-row:hover { background: #e2efff; }
 
     .deck-count {
       padding: 3px 4px;
-      border: 1px solid #555;
-      background: #fff;
-      text-align: center;
       font-weight: bold;
+      text-align: center;
+      background: #fff;
+      border: 1px solid #555;
     }
 
     .deck-card-name {
       overflow: hidden;
+      font-weight: bold;
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-weight: bold;
     }
 
     .deck-card-meta {
       overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
       color: #444;
       font-size: 11px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .tiny-button {
@@ -378,8 +392,8 @@
       justify-content: space-between;
       gap: 8px;
       padding: 6px;
-      border-top: 2px solid #808080;
       font-weight: bold;
+      border-top: 2px solid #808080;
     }
 
     .mode-wrap {
@@ -411,9 +425,7 @@
       background: var(--win-gray);
     }
 
-    .form-cell {
-      min-width: 0;
-    }
+    .form-cell { min-width: 0; }
 
     .form-cell label {
       display: block;
@@ -427,9 +439,7 @@
       width: 100%;
     }
 
-    .token-text {
-      grid-column: span 5;
-    }
+    .token-text { grid-column: span 5; }
 
     .token-list {
       display: flex;
@@ -447,8 +457,8 @@
 
     .token-card .token-name {
       margin-top: 4px;
-      font-weight: bold;
       font-size: 12px;
+      font-weight: bold;
     }
 
     .token-card .token-details {
@@ -479,17 +489,17 @@
     .status-box {
       min-height: 23px;
       padding: 3px 5px;
+      background: var(--win-gray);
       border-top: 1px solid #808080;
       border-left: 1px solid #808080;
       border-right: 1px solid #fff;
       border-bottom: 1px solid #fff;
-      background: var(--win-gray);
     }
 
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      z-index: 10;
+      z-index: 20;
       display: grid;
       place-items: center;
       padding: 20px;
@@ -507,9 +517,7 @@
       border-bottom: 3px solid #404040;
     }
 
-    .modal-content {
-      padding: 14px;
-    }
+    .modal-content { padding: 14px; }
 
     .settings-grid {
       display: grid;
@@ -524,9 +532,7 @@
     }
 
     .settings-grid input,
-    .settings-grid select {
-      width: 100%;
-    }
+    .settings-grid select { width: 100%; }
 
     .modal-actions {
       display: flex;
@@ -537,19 +543,116 @@
 
     .notice {
       padding: 7px;
-      border: 1px solid #777;
       background: #ffffcc;
+      border: 1px solid #777;
       font-size: 12px;
       line-height: 1.35;
     }
 
-    .hidden {
-      display: none !important;
+    .hidden { display: none !important; }
+
+    /* Card size presets */
+    body.size-compact {
+      --card-width: 78px;
+      --card-image-height: 94px;
     }
 
-    @media (max-width: 1100px) {
-      body {
-        min-width: 760px;
+    body.size-compact .magic-card {
+      min-height: 120px;
+      padding: 3px;
+    }
+
+    body.size-compact .magic-card-name {
+      margin-top: 2px;
+      font-size: 9px;
+    }
+
+    body.size-compact .magic-card-type,
+    body.size-compact .add-mini {
+      display: none;
+    }
+
+    body.size-normal {
+      --card-width: 105px;
+      --card-image-height: 120px;
+    }
+
+    body.size-large {
+      --card-width: 145px;
+      --card-image-height: 175px;
+    }
+
+    body.size-large .magic-card {
+      min-height: 233px;
+      padding: 5px;
+    }
+
+    body.size-large .magic-card-name {
+      font-size: 12px;
+    }
+
+    body.size-large .magic-card-type {
+      font-size: 10px;
+      line-height: 12px;
+    }
+
+    body.size-huge {
+      --card-width: 195px;
+      --card-image-height: 240px;
+    }
+
+    body.size-huge .magic-card {
+      min-height: 315px;
+      padding: 6px;
+    }
+
+    body.size-huge .magic-card-name {
+      font-size: 14px;
+    }
+
+    body.size-huge .magic-card-type {
+      font-size: 11px;
+      line-height: 13px;
+    }
+
+    body.size-huge .add-mini {
+      min-height: 25px;
+      font-size: 12px;
+    }
+
+    /* Library focus mode */
+    body.library-focus .workspace {
+      display: block;
+      min-height: 710px;
+    }
+
+    body.library-focus .workspace > .window-panel:not(.library-panel) {
+      display: none;
+    }
+
+    body.library-focus .library-panel {
+      min-height: 710px;
+    }
+
+    body.library-focus .library-panel .card-grid {
+      min-height: 650px;
+      grid-template-columns: repeat(auto-fill, minmax(var(--card-width), 1fr));
+    }
+
+    body.library-focus .token-workbench,
+    body.library-focus .status-strip {
+      display: none;
+    }
+
+    @media (max-width: 1180px) {
+      body { min-width: 760px; }
+
+      .toolbar {
+        grid-template-columns: minmax(230px, 1fr) auto auto;
+      }
+
+      .view-controls {
+        grid-column: 1 / -1;
       }
 
       .workspace {
@@ -561,22 +664,18 @@
         min-height: 270px;
       }
 
-      .side-panel .drop-zone {
-        min-height: 190px;
-      }
+      .side-panel .drop-zone { min-height: 190px; }
 
       .token-form {
         grid-template-columns: 1fr 1fr 1fr 75px;
       }
 
-      .token-text {
-        grid-column: span 4;
-      }
+      .token-text { grid-column: span 4; }
     }
   </style>
 </head>
 
-<body>
+<body class="size-normal">
   <div class="desktop">
     <main class="app">
       <div class="titlebar">
@@ -586,9 +685,9 @@
         </div>
 
         <div class="window-buttons">
-          <button class="window-button" type="button" aria-label="Minimize">_</button>
-          <button class="window-button" type="button" aria-label="Maximize">□</button>
-          <button class="window-button" type="button" aria-label="Close">×</button>
+          <button class="window-button" type="button">_</button>
+          <button class="window-button" type="button">□</button>
+          <button class="window-button" type="button">×</button>
         </div>
       </div>
 
@@ -632,6 +731,21 @@
         </label>
 
         <button id="randomBtn">Random Card</button>
+
+        <div class="view-controls">
+          <span>Card Size:</span>
+          <button class="size-button" id="sizeDownBtn" title="Make cards smaller">−</button>
+
+          <select id="cardSize" title="Choose card size">
+            <option value="compact">Compact</option>
+            <option value="normal" selected>Normal</option>
+            <option value="large">Large</option>
+            <option value="huge">Huge</option>
+          </select>
+
+          <button class="size-button" id="sizeUpBtn" title="Make cards larger">+</button>
+          <button id="focusLibraryBtn">Focus Library</button>
+        </div>
       </section>
 
       <section class="status-strip">
@@ -641,8 +755,8 @@
       </section>
 
       <section class="workspace">
-        <section class="window-panel">
-          <div class="panel-title">CARD LIBRARY</div>
+        <section class="window-panel library-panel">
+          <div class="panel-title">CARD LIBRARY — <span id="libraryHint">search or choose a type</span></div>
 
           <div class="panel-tools">
             <button data-query="t:creature">Creatures</button>
@@ -666,13 +780,13 @@
             <button id="sortDeckBtn">Sort A–Z</button>
           </div>
 
-          <div class="drop-zone" id="deckZone" data-zone="deck">
+          <div class="drop-zone" id="deckZone">
             <div class="zone-message">Drag cards here from the Library or Side Zone.</div>
           </div>
 
           <div class="zone-footer">
             <span id="deckFooter">0 unique cards • 0 total cards</span>
-            <span>Drop Zone: MAIN DECK</span>
+            <span>MAIN DECK</span>
           </div>
         </section>
 
@@ -689,7 +803,7 @@
             </div>
           </div>
 
-          <div class="drop-zone" id="sideZone" data-zone="side">
+          <div class="drop-zone" id="sideZone">
             <div class="zone-message">Drag cards here as maybes or sideboard cards.</div>
           </div>
 
@@ -756,7 +870,7 @@
 
       <div class="modal-content">
         <div class="notice">
-          These settings guide future recommendation features. The main workspace remains flexible, so you can brew any deck without the app blocking you.
+          These settings guide future recommendation features. The main workshop stays flexible, so you can brew without restrictions.
         </div>
 
         <div class="settings-grid" style="margin-top:14px">
@@ -824,11 +938,11 @@
       </div>
 
       <div class="modal-content">
-        <p><b>Search:</b> Type a card name, or use Scryfall searches like <code>t:elf</code>, <code>o:draw</code>, or <code>id:ug</code>.</p>
-        <p><b>Add cards:</b> Drag a card from the Library to Main Deck or Side/Maybe Deck. You can also use the “+ Deck” and “+ Side” buttons.</p>
-        <p><b>Move cards:</b> Drag deck rows between Main Deck and Side/Maybe Deck. Use the minus button to remove one copy.</p>
-        <p><b>Custom tokens:</b> Upload your own image, add a name/types/power-toughness/rules text, then drag the token into either zone as a visual reference.</p>
-        <p><b>Save:</b> This prototype saves on this browser and Mac using local browser storage. It is not yet cloud-synced.</p>
+        <p><b>Card size:</b> Use the minus and plus buttons for quick resizing. Compact lets you browse many cards; Huge is for inspecting cards.</p>
+        <p><b>Focus Library:</b> Expands the card library across the work area, temporarily hiding deck, side zone, and token tools. Click it again to return.</p>
+        <p><b>Search:</b> Use names such as <code>Sol Ring</code> or Scryfall syntax like <code>t:elf</code>, <code>o:draw</code>, and <code>id:ug</code>.</p>
+        <p><b>Build:</b> Drag library cards into Main Deck or Side Zone. Drag deck rows between the two zones. The buttons are fallbacks.</p>
+        <p><b>Tokens:</b> Upload an image, give it a name, types, stats, and rules text, then drag it into a deck zone.</p>
 
         <div class="modal-actions">
           <button id="okHelpBtn">OK</button>
@@ -838,7 +952,8 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "commandforge-win98-v1";
+    const STORAGE_KEY = "commandforge-win98-v2";
+    const SIZES = ["compact", "normal", "large", "huge"];
 
     const state = {
       deckName: "Untitled Deck",
@@ -849,6 +964,8 @@
       deck: [],
       side: [],
       tokens: [],
+      cardSize: "normal",
+      libraryFocus: false,
       settings: {
         primaryTribe: "",
         secondaryTribe: "",
@@ -875,10 +992,6 @@
       return "";
     }
 
-    function getCardType(card) {
-      return card.type_line || "Magic Card";
-    }
-
     function getCardKey(card) {
       return card.customToken ? `token:${card.id}` : `card:${card.oracle_id || card.id}`;
     }
@@ -889,7 +1002,6 @@
         oracle_id: card.oracle_id || card.id,
         name: card.name,
         type_line: card.type_line || "Custom Token",
-        mana_cost: card.mana_cost || "",
         image: card.image || getCardImage(card),
         oracle_text: card.oracle_text || "",
         customToken: !!card.customToken,
@@ -905,17 +1017,46 @@
       return zone.reduce((total, item) => total + item.qty, 0);
     }
 
+    function setCardSize(size) {
+      if (!SIZES.includes(size)) size = "normal";
+
+      state.cardSize = size;
+      document.body.classList.remove(...SIZES.map((entry) => `size-${entry}`));
+      document.body.classList.add(`size-${size}`);
+      $("cardSize").value = size;
+      saveState();
+      setStatus(`Card size set to ${size}.`);
+    }
+
+    function adjustCardSize(direction) {
+      const current = SIZES.indexOf(state.cardSize);
+      const next = Math.max(0, Math.min(SIZES.length - 1, current + direction));
+
+      if (next === current) {
+        setStatus(direction > 0 ? "Cards are already at the largest size." : "Cards are already at the smallest size.");
+        return;
+      }
+
+      setCardSize(SIZES[next]);
+    }
+
+    function toggleLibraryFocus() {
+      state.libraryFocus = !state.libraryFocus;
+      document.body.classList.toggle("library-focus", state.libraryFocus);
+      $("focusLibraryBtn").textContent = state.libraryFocus ? "Return to Deck" : "Focus Library";
+      $("focusLibraryBtn").classList.toggle("active", state.libraryFocus);
+      saveState();
+      setStatus(state.libraryFocus ? "Library focus enabled — browse more cards." : "Returned to deck workshop.");
+    }
+
     function addToZone(zoneName, rawCard) {
       const card = normalizedCard(rawCard);
       const zone = state[zoneName];
       const key = getCardKey(card);
       const existing = zone.find((item) => getCardKey(item.card) === key);
 
-      if (existing) {
-        existing.qty += 1;
-      } else {
-        zone.push({ card, qty: 1 });
-      }
+      if (existing) existing.qty += 1;
+      else zone.push({ card, qty: 1 });
 
       setStatus(`${card.name} added to ${zoneName === "deck" ? "Main Deck" : "Side Zone"}.`);
       renderAll();
@@ -925,14 +1066,10 @@
     function removeOne(zoneName, key) {
       const zone = state[zoneName];
       const index = zone.findIndex((item) => getCardKey(item.card) === key);
-
       if (index < 0) return;
 
       zone[index].qty -= 1;
-
-      if (zone[index].qty <= 0) {
-        zone.splice(index, 1);
-      }
+      if (zone[index].qty <= 0) zone.splice(index, 1);
 
       renderAll();
       saveState();
@@ -942,9 +1079,10 @@
       const item = state[fromZone].find((entry) => getCardKey(entry.card) === key);
       if (!item) return;
 
+      const movedName = item.card.name;
       addToZone(toZone, item.card);
       removeOne(fromZone, key);
-      setStatus(`Moved ${item.card.name} to ${toZone === "deck" ? "Main Deck" : "Side Zone"}.`);
+      setStatus(`Moved ${movedName} to ${toZone === "deck" ? "Main Deck" : "Side Zone"}.`);
     }
 
     function renderLibrary(cards) {
@@ -957,15 +1095,15 @@
 
       grid.innerHTML = cards.map((card) => {
         const image = getCardImage(card);
-        const safeCard = encodeURIComponent(JSON.stringify(normalizedCard(card)));
+        const serialized = encodeURIComponent(JSON.stringify(normalizedCard(card)));
 
         return `
-          <article class="magic-card" draggable="true" data-card="${safeCard}">
+          <article class="magic-card" draggable="true" data-card="${serialized}">
             ${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(card.name)}">` : ""}
             <div class="magic-card-name" title="${escapeHtml(card.name)}">${escapeHtml(card.name)}</div>
-            <div class="magic-card-type">${escapeHtml(getCardType(card))}</div>
-            <button class="add-mini add-deck" data-card="${safeCard}">+ Deck</button>
-            <button class="add-mini add-side" data-card="${safeCard}">+ Side</button>
+            <div class="magic-card-type">${escapeHtml(card.type_line || "Magic Card")}</div>
+            <button class="add-mini add-deck" data-card="${serialized}">+ Deck</button>
+            <button class="add-mini add-side" data-card="${serialized}">+ Side</button>
           </article>
         `;
       }).join("");
@@ -980,7 +1118,7 @@
         node.addEventListener("click", () => {
           try {
             state.selectedCard = JSON.parse(decodeURIComponent(node.dataset.card));
-            setStatus(`Selected: ${state.selectedCard.name}. Use “Set selected card as Commander” if appropriate.`);
+            setStatus(`Selected: ${state.selectedCard.name}.`);
           } catch {}
         });
       });
@@ -1014,10 +1152,10 @@
         .sort((a, b) => a.card.name.localeCompare(b.card.name))
         .map((entry) => {
           const key = encodeURIComponent(getCardKey(entry.card));
-          const payload = encodeURIComponent(JSON.stringify(entry.card));
+          const cardData = encodeURIComponent(JSON.stringify(entry.card));
 
           return `
-            <div class="deck-row" draggable="true" data-key="${key}" data-card="${payload}">
+            <div class="deck-row" draggable="true" data-key="${key}" data-card="${cardData}">
               <div class="deck-count">${entry.qty}x</div>
               <div>
                 <div class="deck-card-name" title="${escapeHtml(entry.card.name)}">${escapeHtml(entry.card.name)}</div>
@@ -1043,8 +1181,9 @@
       });
 
       node.querySelectorAll(".move-card").forEach((button) => {
-        const destination = zoneName === "deck" ? "side" : "deck";
-        button.addEventListener("click", () => moveOne(zoneName, destination, decodeURIComponent(button.dataset.key)));
+        button.addEventListener("click", () => {
+          moveOne(zoneName, zoneName === "deck" ? "side" : "deck", decodeURIComponent(button.dataset.key));
+        });
       });
     }
 
@@ -1100,14 +1239,9 @@
       $("sideFooter").textContent = `${state.side.length} unique cards • ${sideTotal} total cards`;
 
       $("sideTitle").textContent = state.sideMode === "sideboard" ? "SIDEBOARD" : "MAYBEBOARD";
-      $("sideRule").textContent = state.sideMode === "sideboard"
-        ? "Official sideboard mode"
-        : "Unlimited brew space";
+      $("sideRule").textContent = state.sideMode === "sideboard" ? "Official sideboard mode" : "Unlimited brew space";
 
-      $("commanderStatus").textContent = state.commander
-        ? `Commander: ${state.commander}`
-        : "Commander: none selected";
-
+      $("commanderStatus").textContent = state.commander ? `Commander: ${state.commander}` : "Commander: none selected";
       $("health").textContent = `Deck: ${deckTotal} cards | Side: ${sideTotal} cards | Tokens: ${state.tokens.length}`;
     }
 
@@ -1140,6 +1274,8 @@
         state.deck = Array.isArray(data.deck) ? data.deck : [];
         state.side = Array.isArray(data.side) ? data.side : [];
         state.tokens = Array.isArray(data.tokens) ? data.tokens : [];
+        state.cardSize = SIZES.includes(data.cardSize) ? data.cardSize : "normal";
+        state.libraryFocus = !!data.libraryFocus;
         state.settings = { ...state.settings, ...(data.settings || {}) };
       } catch {
         localStorage.removeItem(STORAGE_KEY);
@@ -1155,6 +1291,7 @@
         return;
       }
 
+      $("libraryHint").textContent = `searching: ${cleanQuery}`;
       setStatus(`Searching Scryfall for “${cleanQuery}”...`);
 
       try {
@@ -1168,10 +1305,14 @@
         }
 
         const data = await response.json();
-        renderLibrary((data.data || []).slice(0, 30));
-        setStatus(`Found ${Math.min(data.total_cards || data.data.length, 30)} card${(data.total_cards || data.data.length) === 1 ? "" : "s"} — showing up to 30.`);
+        const cards = (data.data || []).slice(0, 48);
+
+        renderLibrary(cards);
+        $("libraryHint").textContent = `${cards.length} cards shown`;
+        setStatus(`Found ${data.total_cards || cards.length} cards — showing the first ${cards.length}.`);
       } catch (error) {
         renderLibrary([]);
+        $("libraryHint").textContent = "no results";
         setStatus(error.message || "Could not search Scryfall. Check your internet connection.");
       }
     }
@@ -1188,8 +1329,9 @@
 
         const card = await response.json();
         renderLibrary([card]);
+        $("libraryHint").textContent = "random find";
         setStatus(`Random find: ${card.name}`);
-      } catch (error) {
+      } catch {
         setStatus("Could not load a random card.");
       }
     }
@@ -1306,8 +1448,7 @@
     }
 
     function clearDeck() {
-      const confirmed = window.confirm("Clear Main Deck and Side/Maybe Deck? Custom tokens will stay.");
-      if (!confirmed) return;
+      if (!window.confirm("Clear Main Deck and Side/Maybe Deck? Custom tokens will remain.")) return;
 
       state.deck = [];
       state.side = [];
@@ -1318,8 +1459,7 @@
     }
 
     function newDeck() {
-      const confirmed = window.confirm("Start a new deck? Your current deck will remain saved only if you click Save first.");
-      if (!confirmed) return;
+      if (!window.confirm("Start a new deck? Save your current deck first if you want to preserve it.")) return;
 
       state.deckName = "Untitled Deck";
       state.format = "Commander";
@@ -1344,6 +1484,7 @@
 
     $("clearSearchBtn").addEventListener("click", () => {
       $("searchInput").value = "";
+      $("libraryHint").textContent = "search or choose a type";
       $("libraryGrid").innerHTML = `<div class="zone-message">Search for a Magic card to fill the library.</div>`;
       setStatus("Library cleared.");
     });
@@ -1367,6 +1508,7 @@
     $("sideModePanel").addEventListener("change", (event) => syncSideMode(event.target.value));
 
     $("deckName").addEventListener("change", saveState);
+
     $("saveBtn").addEventListener("click", () => {
       saveState();
       setStatus("Deck saved to this browser.");
@@ -1386,7 +1528,7 @@
 
     $("setCommanderBtn").addEventListener("click", () => {
       if (!state.selectedCard) {
-        setStatus("Click a card in the Library first, then set it as Commander.");
+        setStatus("Click a card in the Library first, then choose Set selected card as Commander.");
         return;
       }
 
@@ -1405,6 +1547,11 @@
 
     $("createTokenBtn").addEventListener("click", createToken);
 
+    $("cardSize").addEventListener("change", (event) => setCardSize(event.target.value));
+    $("sizeDownBtn").addEventListener("click", () => adjustCardSize(-1));
+    $("sizeUpBtn").addEventListener("click", () => adjustCardSize(1));
+    $("focusLibraryBtn").addEventListener("click", toggleLibraryFocus);
+
     connectDropZone($("deckZone"), "deck");
     connectDropZone($("sideZone"), "side");
 
@@ -1415,6 +1562,16 @@
     $("sideMode").value = state.sideMode;
     $("sideModePanel").value = state.sideMode;
 
+    document.body.classList.remove(...SIZES.map((entry) => `size-${entry}`));
+    document.body.classList.add(`size-${state.cardSize}`);
+
+    if (state.libraryFocus) {
+      document.body.classList.add("library-focus");
+      $("focusLibraryBtn").textContent = "Return to Deck";
+      $("focusLibraryBtn").classList.add("active");
+    }
+
+    $("cardSize").value = state.cardSize;
     renderAll();
   </script>
 </body>
