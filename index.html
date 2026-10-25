@@ -974,4 +974,448 @@
         node.addEventListener("dragstart", (event) => {
           event.dataTransfer.effectAllowed = "copy";
           event.dataTransfer.setData("application/json", node.dataset.card);
-          event.dataTransfer.setData("source-zone", "librar
+          event.dataTransfer.setData("source-zone", "library");
+        });
+
+        node.addEventListener("click", () => {
+          try {
+            state.selectedCard = JSON.parse(decodeURIComponent(node.dataset.card));
+            setStatus(`Selected: ${state.selectedCard.name}. Use “Set selected card as Commander” if appropriate.`);
+          } catch {}
+        });
+      });
+
+      grid.querySelectorAll(".add-deck").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
+          addToZone("deck", JSON.parse(decodeURIComponent(button.dataset.card)));
+        });
+      });
+
+      grid.querySelectorAll(".add-side").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
+          addToZone("side", JSON.parse(decodeURIComponent(button.dataset.card)));
+        });
+      });
+    }
+
+    function renderZone(zoneName, nodeId) {
+      const zone = state[zoneName];
+      const node = $(nodeId);
+
+      if (!zone.length) {
+        node.innerHTML = `<div class="zone-message">Drag cards here from the Library or ${zoneName === "deck" ? "Side Zone" : "Main Deck"}.</div>`;
+        return;
+      }
+
+      node.innerHTML = zone
+        .slice()
+        .sort((a, b) => a.card.name.localeCompare(b.card.name))
+        .map((entry) => {
+          const key = encodeURIComponent(getCardKey(entry.card));
+          const payload = encodeURIComponent(JSON.stringify(entry.card));
+
+          return `
+            <div class="deck-row" draggable="true" data-key="${key}" data-card="${payload}">
+              <div class="deck-count">${entry.qty}x</div>
+              <div>
+                <div class="deck-card-name" title="${escapeHtml(entry.card.name)}">${escapeHtml(entry.card.name)}</div>
+                <div class="deck-card-meta">${escapeHtml(entry.card.type_line)}${entry.card.customToken ? " • Custom Token" : ""}</div>
+              </div>
+              <button class="tiny-button remove-card" data-key="${key}" title="Remove one copy">−</button>
+              <button class="tiny-button move-card" data-key="${key}" title="Move one copy">↔</button>
+            </div>
+          `;
+        }).join("");
+
+      node.querySelectorAll(".deck-row").forEach((row) => {
+        row.addEventListener("dragstart", (event) => {
+          event.dataTransfer.effectAllowed = "move";
+          event.dataTransfer.setData("source-zone", zoneName);
+          event.dataTransfer.setData("zone-card-key", decodeURIComponent(row.dataset.key));
+          event.dataTransfer.setData("application/json", row.dataset.card);
+        });
+      });
+
+      node.querySelectorAll(".remove-card").forEach((button) => {
+        button.addEventListener("click", () => removeOne(zoneName, decodeURIComponent(button.dataset.key)));
+      });
+
+      node.querySelectorAll(".move-card").forEach((button) => {
+        const destination = zoneName === "deck" ? "side" : "deck";
+        button.addEventListener("click", () => moveOne(zoneName, destination, decodeURIComponent(button.dataset.key)));
+      });
+    }
+
+    function renderTokens() {
+      const list = $("tokenList");
+
+      if (!state.tokens.length) {
+        list.innerHTML = `<div class="zone-message">Upload an image and create your first custom token.</div>`;
+        return;
+      }
+
+      list.innerHTML = state.tokens.map((token) => {
+        const payload = encodeURIComponent(JSON.stringify(token));
+
+        return `
+          <article class="token-card" draggable="true" data-token="${payload}">
+            <button class="token-delete" data-token-id="${escapeHtml(token.id)}" title="Delete token">×</button>
+            ${token.image ? `<img src="${escapeHtml(token.image)}" alt="${escapeHtml(token.name)}">` : ""}
+            <div class="token-name">${escapeHtml(token.name)}</div>
+            <div class="token-details">${escapeHtml(token.type_line)}</div>
+            <div class="token-details">${escapeHtml(token.tokenDetails || "")}</div>
+          </article>
+        `;
+      }).join("");
+
+      list.querySelectorAll(".token-card").forEach((tokenNode) => {
+        tokenNode.addEventListener("dragstart", (event) => {
+          event.dataTransfer.effectAllowed = "copy";
+          event.dataTransfer.setData("application/json", decodeURIComponent(tokenNode.dataset.token));
+          event.dataTransfer.setData("source-zone", "token");
+        });
+      });
+
+      list.querySelectorAll(".token-delete").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
+          state.tokens = state.tokens.filter((token) => token.id !== button.dataset.tokenId);
+          renderTokens();
+          updateSummary();
+          saveState();
+        });
+      });
+    }
+
+    function updateSummary() {
+      const deckTotal = totalCopies(state.deck);
+      const sideTotal = totalCopies(state.side);
+      const deckTarget = ["Commander", "Brawl", "Oathbreaker"].includes(state.format) ? 100 : 60;
+
+      $("deckCountTitle").textContent = `${deckTotal} / ${deckTarget}`;
+      $("sideCountTitle").textContent = `${sideTotal} cards`;
+      $("deckFooter").textContent = `${state.deck.length} unique cards • ${deckTotal} total cards`;
+      $("sideFooter").textContent = `${state.side.length} unique cards • ${sideTotal} total cards`;
+
+      $("sideTitle").textContent = state.sideMode === "sideboard" ? "SIDEBOARD" : "MAYBEBOARD";
+      $("sideRule").textContent = state.sideMode === "sideboard"
+        ? "Official sideboard mode"
+        : "Unlimited brew space";
+
+      $("commanderStatus").textContent = state.commander
+        ? `Commander: ${state.commander}`
+        : "Commander: none selected";
+
+      $("health").textContent = `Deck: ${deckTotal} cards | Side: ${sideTotal} cards | Tokens: ${state.tokens.length}`;
+    }
+
+    function renderAll() {
+      renderZone("deck", "deckZone");
+      renderZone("side", "sideZone");
+      renderTokens();
+      updateSummary();
+    }
+
+    function saveState() {
+      state.deckName = $("deckName").value || "Untitled Deck";
+      state.format = $("formatSelect").value;
+      state.sideMode = $("sideMode").value;
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
+
+      try {
+        const data = JSON.parse(saved);
+
+        state.deckName = data.deckName || state.deckName;
+        state.format = data.format || state.format;
+        state.sideMode = data.sideMode || state.sideMode;
+        state.commander = data.commander || "";
+        state.deck = Array.isArray(data.deck) ? data.deck : [];
+        state.side = Array.isArray(data.side) ? data.side : [];
+        state.tokens = Array.isArray(data.tokens) ? data.tokens : [];
+        state.settings = { ...state.settings, ...(data.settings || {}) };
+      } catch {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+
+    async function searchCards(query) {
+      const cleanQuery = query.trim();
+
+      if (!cleanQuery) {
+        renderLibrary([]);
+        setStatus("Type a card name or a Scryfall search query.");
+        return;
+      }
+
+      setStatus(`Searching Scryfall for “${cleanQuery}”...`);
+
+      try {
+        const response = await fetch(
+          `https://api.scryfall.com/cards/search?q=${encodeURIComponent(cleanQuery)}&unique=cards&order=name`,
+          { headers: { Accept: "application/json" } }
+        );
+
+        if (!response.ok) {
+          throw new Error(response.status === 404 ? "No cards found." : "Scryfall search failed.");
+        }
+
+        const data = await response.json();
+        renderLibrary((data.data || []).slice(0, 30));
+        setStatus(`Found ${Math.min(data.total_cards || data.data.length, 30)} card${(data.total_cards || data.data.length) === 1 ? "" : "s"} — showing up to 30.`);
+      } catch (error) {
+        renderLibrary([]);
+        setStatus(error.message || "Could not search Scryfall. Check your internet connection.");
+      }
+    }
+
+    async function randomCard() {
+      setStatus("Finding a random card...");
+
+      try {
+        const response = await fetch("https://api.scryfall.com/cards/random", {
+          headers: { Accept: "application/json" }
+        });
+
+        if (!response.ok) throw new Error("Random card request failed.");
+
+        const card = await response.json();
+        renderLibrary([card]);
+        setStatus(`Random find: ${card.name}`);
+      } catch (error) {
+        setStatus("Could not load a random card.");
+      }
+    }
+
+    function syncSideMode(mode) {
+      state.sideMode = mode;
+      $("sideMode").value = mode;
+      $("sideModePanel").value = mode;
+      updateSummary();
+      saveState();
+    }
+
+    function createToken() {
+      const file = $("tokenImage").files[0];
+      const name = $("tokenName").value.trim();
+      const types = $("tokenTypes").value.trim();
+      const pt = $("tokenPT").value.trim();
+      const rules = $("tokenText").value.trim();
+
+      if (!name) {
+        setStatus("Token needs a name before it can be created.");
+        return;
+      }
+
+      const finishToken = (image = "") => {
+        state.tokens.push({
+          id: `token-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          name,
+          type_line: types || "Custom Token",
+          image,
+          customToken: true,
+          tokenDetails: [pt, rules].filter(Boolean).join(" • ")
+        });
+
+        $("tokenImage").value = "";
+        $("tokenName").value = "";
+        $("tokenTypes").value = "";
+        $("tokenPT").value = "";
+        $("tokenText").value = "";
+
+        renderTokens();
+        updateSummary();
+        saveState();
+        setStatus(`Created custom token: ${name}`);
+      };
+
+      if (!file) {
+        finishToken("");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => finishToken(reader.result);
+      reader.onerror = () => setStatus("Could not read that token image.");
+      reader.readAsDataURL(file);
+    }
+
+    function connectDropZone(node, destinationZone) {
+      node.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "copy";
+        node.classList.add("over");
+      });
+
+      node.addEventListener("dragleave", () => node.classList.remove("over"));
+
+      node.addEventListener("drop", (event) => {
+        event.preventDefault();
+        node.classList.remove("over");
+
+        const sourceZone = event.dataTransfer.getData("source-zone");
+        const rawCard = event.dataTransfer.getData("application/json");
+        const cardKey = event.dataTransfer.getData("zone-card-key");
+
+        if (!rawCard) return;
+
+        try {
+          const card = JSON.parse(rawCard);
+
+          if (sourceZone === "deck" || sourceZone === "side") {
+            if (sourceZone === destinationZone) return;
+            moveOne(sourceZone, destinationZone, cardKey || getCardKey(card));
+          } else {
+            addToZone(destinationZone, card);
+          }
+        } catch {
+          setStatus("That item could not be dropped.");
+        }
+      });
+    }
+
+    function openSettings() {
+      $("commanderInput").value = state.commander || "";
+      $("primaryTribe").value = state.settings.primaryTribe || "";
+      $("secondaryTribe").value = state.settings.secondaryTribe || "";
+      $("tribalMode").value = state.settings.tribalMode || "core";
+      $("powerLevel").value = state.settings.powerLevel || "Tuned";
+      $("budget").value = state.settings.budget || "Under $250";
+      $("settingsModal").classList.remove("hidden");
+    }
+
+    function saveSettings() {
+      state.commander = $("commanderInput").value.trim();
+      state.settings.primaryTribe = $("primaryTribe").value.trim();
+      state.settings.secondaryTribe = $("secondaryTribe").value.trim();
+      state.settings.tribalMode = $("tribalMode").value;
+      state.settings.powerLevel = $("powerLevel").value;
+      state.settings.budget = $("budget").value;
+
+      $("settingsModal").classList.add("hidden");
+      updateSummary();
+      saveState();
+      setStatus("Deck settings saved.");
+    }
+
+    function clearDeck() {
+      const confirmed = window.confirm("Clear Main Deck and Side/Maybe Deck? Custom tokens will stay.");
+      if (!confirmed) return;
+
+      state.deck = [];
+      state.side = [];
+      state.commander = "";
+      renderAll();
+      saveState();
+      setStatus("Deck zones cleared.");
+    }
+
+    function newDeck() {
+      const confirmed = window.confirm("Start a new deck? Your current deck will remain saved only if you click Save first.");
+      if (!confirmed) return;
+
+      state.deckName = "Untitled Deck";
+      state.format = "Commander";
+      state.sideMode = "maybeboard";
+      state.commander = "";
+      state.deck = [];
+      state.side = [];
+      state.selectedCard = null;
+
+      $("deckName").value = state.deckName;
+      $("formatSelect").value = state.format;
+      syncSideMode(state.sideMode);
+      renderAll();
+      setStatus("New deck ready.");
+    }
+
+    $("searchBtn").addEventListener("click", () => searchCards($("searchInput").value));
+
+    $("searchInput").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") searchCards($("searchInput").value);
+    });
+
+    $("clearSearchBtn").addEventListener("click", () => {
+      $("searchInput").value = "";
+      $("libraryGrid").innerHTML = `<div class="zone-message">Search for a Magic card to fill the library.</div>`;
+      setStatus("Library cleared.");
+    });
+
+    $("randomBtn").addEventListener("click", randomCard);
+
+    document.querySelectorAll("[data-query]").forEach((button) => {
+      button.addEventListener("click", () => {
+        $("searchInput").value = button.dataset.query;
+        searchCards(button.dataset.query);
+      });
+    });
+
+    $("formatSelect").addEventListener("change", () => {
+      state.format = $("formatSelect").value;
+      updateSummary();
+      saveState();
+    });
+
+    $("sideMode").addEventListener("change", (event) => syncSideMode(event.target.value));
+    $("sideModePanel").addEventListener("change", (event) => syncSideMode(event.target.value));
+
+    $("deckName").addEventListener("change", saveState);
+    $("saveBtn").addEventListener("click", () => {
+      saveState();
+      setStatus("Deck saved to this browser.");
+    });
+
+    $("clearBtn").addEventListener("click", clearDeck);
+    $("newDeckBtn").addEventListener("click", newDeck);
+
+    $("settingsBtn").addEventListener("click", openSettings);
+    $("closeSettingsBtn").addEventListener("click", () => $("settingsModal").classList.add("hidden"));
+    $("cancelSettingsBtn").addEventListener("click", () => $("settingsModal").classList.add("hidden"));
+    $("saveSettingsBtn").addEventListener("click", saveSettings);
+
+    $("helpBtn").addEventListener("click", () => $("helpModal").classList.remove("hidden"));
+    $("closeHelpBtn").addEventListener("click", () => $("helpModal").classList.add("hidden"));
+    $("okHelpBtn").addEventListener("click", () => $("helpModal").classList.add("hidden"));
+
+    $("setCommanderBtn").addEventListener("click", () => {
+      if (!state.selectedCard) {
+        setStatus("Click a card in the Library first, then set it as Commander.");
+        return;
+      }
+
+      state.commander = state.selectedCard.name;
+      updateSummary();
+      saveState();
+      setStatus(`${state.commander} set as Commander / Deck Leader.`);
+    });
+
+    $("sortDeckBtn").addEventListener("click", () => {
+      state.deck.sort((a, b) => a.card.name.localeCompare(b.card.name));
+      renderZone("deck", "deckZone");
+      saveState();
+      setStatus("Main Deck sorted A–Z.");
+    });
+
+    $("createTokenBtn").addEventListener("click", createToken);
+
+    connectDropZone($("deckZone"), "deck");
+    connectDropZone($("sideZone"), "side");
+
+    loadState();
+
+    $("deckName").value = state.deckName;
+    $("formatSelect").value = state.format;
+    $("sideMode").value = state.sideMode;
+    $("sideModePanel").value = state.sideMode;
+
+    renderAll();
+  </script>
+</body>
+</html>
